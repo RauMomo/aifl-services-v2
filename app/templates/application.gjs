@@ -12,6 +12,7 @@ import WhyAiflSection from '../components/why-aifl-section';
 import CommitmentSection from '../components/commitment-section';
 import ContactSection from '../components/contact-section';
 import FooterSection from '../components/footer-section';
+import WhatsappButton from '../components/whatsapp-button';
 
 export default class Application extends Component {
   constructor() {
@@ -89,6 +90,9 @@ export default class Application extends Component {
 
       {{! Footer }}
       <FooterSection />
+
+      {{! Floating WhatsApp CTA Button }}
+      <WhatsappButton />
     </div>
   </template>
 }
