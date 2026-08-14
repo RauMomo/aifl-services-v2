@@ -485,12 +485,12 @@ body {
 .hero-section {
   position: relative;
   z-index: 1;
-  padding: 5rem 0rem 6rem;
+  padding: 4rem 0rem 6rem;
   max-width: 1280px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1.3fr minmax(0, 0.9fr);
-  gap: 8rem;
+  grid-template-columns: 1.1fr minmax(0, 0.9fr);
+  gap: 4rem;
   align-items: center;
   min-height: calc(100vh - 80px);
 }
@@ -541,7 +541,7 @@ body {
   perspective: 1000px;
   width: 100%;
   max-width: 540px;
-  margin-left: auto;
+  margin: 0 auto;
 }
 
 .hero-parallax-card {
@@ -2605,7 +2605,7 @@ body {
 .hero-orbital-system {
   position: absolute;
   top: 50%;
-  right: -120px;
+  right: -140px;
   transform: translateY(-50%);
   width: 820px;
   height: 820px;
