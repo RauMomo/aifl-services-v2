@@ -3,7 +3,7 @@ import Component from '@glimmer/component';
 export default class WhatsappButton extends Component {
   // Default WhatsApp Consultation Link & Pre-filled Message
   whatsappUrl =
-    'https://wa.me/6281234567890?text=Halo%20AIFL%20Services%2C%20saya%20ingin%20berkonsultasi%20mengenai%20solusi%20digital%20dan%20otomatisasi%20operasional';
+    'https://wa.me/6281312168535?text=Halo%20AIFL%20Services%2C%20saya%20ingin%20berkonsultasi%20mengenai%20solusi%20digital%20dan%20otomatisasi%20operasional';
 
   <template>
     <a

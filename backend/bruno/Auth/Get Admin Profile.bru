@@ -1,11 +1,11 @@
 meta {
-  name: Contact - Get List (Protected)
+  name: Get Admin Profile
   type: http
-  seq: 6
+  seq: 4
 }
 
 get {
-  url: {{baseUrl}}/api/v1/contact/list
+  url: {{baseUrl}}/api/v1/auth/me
   body: none
   auth: bearer
 }

@@ -1,0 +1,19 @@
+meta {
+  name: Projects - Upload Image (Protected)
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/api/v1/projects/upload-image
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:multipart-form {
+  image: @file()
+}

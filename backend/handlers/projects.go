@@ -3,19 +3,27 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"aifl-backend/db"
 	"aifl-backend/logger"
 	"aifl-backend/models"
+	"aifl-backend/storage"
 )
 
-type ProjectHandler struct{}
+type ProjectHandler struct {
+	ikService *storage.ImageKitService
+}
 
 func NewProjectHandler() *ProjectHandler {
-	h := &ProjectHandler{}
+	h := &ProjectHandler{
+		ikService: storage.NewImageKitService(),
+	}
 	h.seedDefaultProjects()
 	return h
 }
@@ -147,5 +155,96 @@ func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "Proyek berhasil ditambahkan",
 		Data:    req,
+	})
+}
+
+// UploadImage handles POST /api/v1/projects/upload-image
+func (h *ProjectHandler) UploadImage(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
+			Success: false,
+			Error:   "Method not allowed",
+		})
+		return
+	}
+
+	// 10MB max upload memory
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		respondJSON(w, http.StatusBadRequest, models.APIResponse{
+			Success: false,
+			Error:   "Gagal memproses file upload (Maksimal 10MB)",
+		})
+		return
+	}
+
+	file, header, err := r.FormFile("image")
+	if err != nil {
+		file, header, err = r.FormFile("file")
+		if err != nil {
+			respondJSON(w, http.StatusBadRequest, models.APIResponse{
+				Success: false,
+				Error:   "File gambar tidak ditemukan dalam form (Gunakan field 'image' atau 'file')",
+			})
+			return
+		}
+	}
+	defer file.Close()
+
+	// If ImageKit is configured, upload to cloud
+	if h.ikService.IsConfigured() {
+		result, err := h.ikService.UploadFile(r.Context(), file, header.Filename, "/projects")
+		if err != nil {
+			respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+				Success: false,
+				Error:   "Gagal mengunggah gambar ke ImageKit: " + err.Error(),
+			})
+			return
+		}
+
+		respondJSON(w, http.StatusCreated, models.APIResponse{
+			Success: true,
+			Message: "Gambar proyek berhasil diunggah ke ImageKit",
+			Data:    result,
+		})
+		return
+	}
+
+	// Fallback Local Disk Storage if ImageKit env variables are not set
+	uploadDir := "./public/uploads"
+	_ = os.MkdirAll(uploadDir, 0755)
+
+	ext := filepath.Ext(header.Filename)
+	uniqueFileName := fmt.Sprintf("proj-img-%d%s", time.Now().UnixNano(), ext)
+	dstPath := filepath.Join(uploadDir, uniqueFileName)
+
+	dst, err := os.Create(dstPath)
+	if err != nil {
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal menyimpan file lokal",
+		})
+		return
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, file); err != nil {
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal menyalin data file",
+		})
+		return
+	}
+
+	localURL := fmt.Sprintf("/uploads/%s", uniqueFileName)
+	logger.Log.Info("📁 File saved to local storage (ImageKit unconfigured)", "url", localURL)
+
+	respondJSON(w, http.StatusCreated, models.APIResponse{
+		Success: true,
+		Message: "Gambar berhasil disimpan di penyimpanan lokal (ImageKit belum dikonfigurasi)",
+		Data: storage.UploadResult{
+			URL:    localURL,
+			FileID: uniqueFileName,
+			Name:   header.Filename,
+		},
 	})
 }

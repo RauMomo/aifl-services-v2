@@ -63,6 +63,11 @@ func RegisterRoutes() http.Handler {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
+	mux.Handle("/api/v1/projects/upload-image", handlers.JWTMiddleware(http.HandlerFunc(projectH.UploadImage)))
+
+	// Static file handler for local uploads fallback
+	fs := http.FileServer(http.Dir("./public/uploads"))
+	mux.Handle("/uploads/", http.StripPrefix("/uploads/", fs))
 
 	mux.HandleFunc("/api/v1/testimonials", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
