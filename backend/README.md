@@ -77,12 +77,12 @@ cd backend
 go run main.go
 ```
 
-The server will start at `http://localhost:8080`.
+The server will start at `http://localhost:8200`.
 
 Test the health check endpoint:
 
 ```bash
-curl http://localhost:8080/health
+curl http://localhost:8200/health
 ```
 
 ---
@@ -94,5 +94,5 @@ curl http://localhost:8080/health
 3. Click **Build new app** -> Select **Containers**.
 4. Connect your GitHub repository.
 5. Set **Root Directory** to `backend` (if in a monorepo) or standard root.
-6. Set **Port** to `8080`.
+6. Set **Port** to `8200`.
 7. Click **Deploy**. Back4App will automatically build the `Dockerfile` and deploy your Golang REST API service with free SSL and auto-scaling!

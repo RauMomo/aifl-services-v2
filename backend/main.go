@@ -13,7 +13,7 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8200"
 	}
 
 	// Initialize Database (GORM SQLite) & Seed Default Admin Account

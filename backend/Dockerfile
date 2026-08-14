@@ -23,8 +23,8 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=builder /app/main .
 
-# Expose port (Back4App default 8080)
-EXPOSE 8080
+# Expose port (8200)
+EXPOSE 8200
 
 # Run the app
 CMD ["./main"]
