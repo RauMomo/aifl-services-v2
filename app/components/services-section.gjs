@@ -361,16 +361,11 @@ export default class ServicesSection extends Component {
                     <span class="widget-status">DIAGNOSTIC ROADMAP</span>
                   </div>
                   <div class="discovery-nodes">
-                    <div class="disc-node"><span class="disc-icon">🔍</span>
-                      1. Problem Discovery</div>
+                    <div class="disc-node active">1. Problem Discovery</div>
                     <div class="disc-connector"></div>
-                    <div class="disc-node"><span class="disc-icon">🗺️</span>
-                      2. Business Process Mapping</div>
+                    <div class="disc-node">2. Business Process Mapping</div>
                     <div class="disc-connector"></div>
-                    <div class="disc-node active"><span
-                        class="disc-icon"
-                      >⚡</span>
-                      3. Solution Architecture</div>
+                    <div class="disc-node">3. Solution Architecture</div>
                   </div>
                 </div>
               {{/if}}
