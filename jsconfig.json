@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "checkJs": false,
+    "noEmit": true
+  },
+  "include": [
+    "app/**/*.js",
+    "tests/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "tmp",
+    "app/**/*.gjs",
+    "app/**/*.gts"
+  ]
+}

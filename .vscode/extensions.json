@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    // Glimmer Templates Syntax — adds glimmer-js / glimmer-ts language modes
+    // Search: "Glimmer Templates Syntax" by lifeart
+    "lifeart.vscode-ember-syntax",
+
+    // Ember Language Server — IntelliSense, go-to-definition, etc.
+    // Search: "Ember" by emberjs
+    "emberjs.vscode-ember",
+
+    // Optional: lifeart's unstable Ember extension (more experimental features)
+    "lifeart.vscode-ember-unstable"
+  ]
+}

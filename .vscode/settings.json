@@ -1,0 +1,41 @@
+{
+  "files.associations": {
+    "*.gjs": "glimmer-js",
+    "*.gts": "glimmer-ts"
+  },
+
+  // Disable JS/TS validators on .gjs/.gts — they don't understand <template> syntax
+  "javascript.validate.enable": false,
+  "typescript.validate.enable": false,
+
+  // Prevent the built-in JS language features from running on glimmer files
+  "javascript.suggest.enabled": false,
+
+  // Disable JS formatter on non-JS files to avoid conflicts
+  "javascript.format.enable": false,
+
+  // Disable tsserver from offering suggestions on gjs/gts (handled by ember LS)
+  "javascript.suggest.paths": false,
+  "typescript.suggest.paths": false,
+
+  // jsconfig.json excludes .gjs/.gts from tsserver — see jsconfig.json at workspace root
+
+  // Tell ESLint to also lint .gjs files (Ember Glimmer Components)
+  "eslint.probe": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "glimmer-js",
+    "glimmer-ts"
+  ],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "glimmer-js",
+    "glimmer-ts"
+  ]
+}
+
