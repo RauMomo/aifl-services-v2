@@ -239,15 +239,15 @@ const setupTypingCode = modifier((container) => {
   if (!container) return;
 
   const CODE_LINES = [
-    { num: '01', tokens: [{ text: 'import', class: 'kw' }, { text: ' { ' }, { text: 'NeuralEngine', class: 'type' }, { text: ', ' }, { text: 'MatrixCluster', class: 'type' }, { text: ' } ' }, { text: 'from', class: 'kw' }, { text: ' ' }, { text: "'@aifl/core'", class: 'str' }, { text: ';' }] },
+    { num: '01', tokens: [{ text: 'import', class: 'kw' }, { text: ' { ' }, { text: 'NeuralEngine', class: 'type' }, { text: ' } ' }, { text: 'from', class: 'kw' }, { text: ' ' }, { text: "'@aifl/core'", class: 'str' }, { text: ';' }] },
     { num: '02', tokens: [] },
-    { num: '03', tokens: [{ text: '// Initializing Autonomous Green Code Engine...', class: 'cmt' }] },
-    { num: '04', tokens: [{ text: 'const', class: 'kw' }, { text: ' cluster = ' }, { text: 'new', class: 'kw' }, { text: ' ' }, { text: 'MatrixCluster', class: 'type' }, { text: '({ nodes: ' }, { text: '256', class: 'num' }, { text: ', mode: ' }, { text: "'QUANTUM'", class: 'str' }, { text: ' });' }] },
-    { num: '05', tokens: [{ text: 'await', class: 'kw' }, { text: ' cluster.' }, { text: 'initAutonomousEngine', class: 'fn' }, { text: '();' }] },
+    { num: '03', tokens: [{ text: '// Initializing Green Code Engine...', class: 'cmt' }] },
+    { num: '04', tokens: [{ text: 'const', class: 'kw' }, { text: ' engine = ' }, { text: 'new', class: 'kw' }, { text: ' ' }, { text: 'NeuralEngine', class: 'type' }, { text: '({ mode: ' }, { text: "'QUANTUM'", class: 'str' }, { text: ' });' }] },
+    { num: '05', tokens: [{ text: 'await', class: 'kw' }, { text: ' engine.' }, { text: 'initAutonomousLoop', class: 'fn' }, { text: '();' }] },
     { num: '06', tokens: [] },
-    { num: '07', tokens: [{ text: 'const', class: 'kw' }, { text: ' stream = cluster.' }, { text: 'subscribe', class: 'fn' }, { text: '({ throughput: ' }, { text: "'1.4 GB/s'", class: 'str' }, { text: ' });' }] },
+    { num: '07', tokens: [{ text: 'const', class: 'kw' }, { text: ' stream = engine.' }, { text: 'subscribe', class: 'fn' }, { text: '({ throughput: ' }, { text: "'1.4 GB/s'", class: 'str' }, { text: ' });' }] },
     { num: '08', tokens: [{ text: 'stream.' }, { text: 'on', class: 'fn' }, { text: '(' }, { text: "'data'", class: 'str' }, { text: ', (' }, { text: 'chunk', class: 'type' }, { text: ') => {' }] },
-    { num: '09', tokens: [{ text: '  process.stdout.' }, { text: 'write', class: 'fn' }, { text: '(chunk.' }, { text: 'matrixGlow', class: 'fn' }, { text: '());' }] },
+    { num: '09', tokens: [{ text: '  process.stdout.' }, { text: 'write', class: 'fn' }, { text: '(chunk.' }, { text: 'glow', class: 'fn' }, { text: '());' }] },
     { num: '10', tokens: [{ text: '});' }] }
   ];
 
