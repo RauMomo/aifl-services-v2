@@ -22,17 +22,20 @@ export default class Application extends Component {
       const updateParallax = () => {
         const scrollY = window.scrollY;
         const viewportHeight = window.innerHeight;
-        document.documentElement.style.setProperty('--scroll-y', `${scrollY}px`);
+        document.documentElement.style.setProperty(
+          '--scroll-y',
+          `${scrollY}px`,
+        );
 
         const sections = document.querySelectorAll(
-          '.section-wrapper, .hero-section, .contact-container, .footer, .about-box, .commitment-card'
+          '.section-wrapper, .hero-section, .contact-container, .footer, .about-box, .commitment-card',
         );
         sections.forEach((sec) => {
           const rect = sec.getBoundingClientRect();
           const totalDist = viewportHeight + rect.height;
           const currentDist = viewportHeight - rect.top;
           const progress = Math.max(0, Math.min(1, currentDist / totalDist));
-          const centerOffset = (rect.top + rect.height / 2) - (viewportHeight / 2);
+          const centerOffset = rect.top + rect.height / 2 - viewportHeight / 2;
 
           sec.style.setProperty('--sec-progress', progress.toFixed(4));
           sec.style.setProperty('--sec-offset', `${centerOffset.toFixed(1)}px`);
@@ -55,19 +58,21 @@ export default class Application extends Component {
   }
 
   <template>
-    {{pageTitle "AIFL SERVICES — Digital Solutions That Help Organizations Work Better"}}
+    {{pageTitle
+      "AIFL Services | Digital Solutions That Help Organizations Work Better"
+    }}
 
     <div class="app-container">
-      {{!-- Background Grid & Parallax Orbs --}}
+      {{! Background Grid & Parallax Orbs }}
       <div class="bg-grid-pattern"></div>
       <div class="parallax-orb orb-1"></div>
       <div class="parallax-orb orb-2"></div>
       <div class="parallax-orb orb-3"></div>
 
-      {{!-- Header Navbar --}}
+      {{! Header Navbar }}
       <Navbar />
 
-      {{!-- Main Content --}}
+      {{! Main Content }}
       <main class="main-content">
         <HeroSection />
         <AboutSection />
@@ -82,7 +87,7 @@ export default class Application extends Component {
         {{outlet}}
       </main>
 
-      {{!-- Footer --}}
+      {{! Footer }}
       <FooterSection />
     </div>
   </template>

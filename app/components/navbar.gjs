@@ -8,7 +8,8 @@ export default class Navbar extends Component {
         <a href="#" class="nav-brand">
           <img src="/logo.png" alt="AIFL Services" class="brand-logo-img" />
           <div class="brand-text">
-            <span class="brand-name">AIFL <span class="brand-name-highlight">SERVICES</span></span>
+            <span class="brand-name">AIFL
+              <span class="brand-name-highlight">SERVICES</span></span>
             <span class="brand-tag">Digital Solutions</span>
           </div>
         </a>
@@ -27,8 +28,19 @@ export default class Navbar extends Component {
 
         <div class="nav-actions">
           <UiButton @href="#contact" @variant="fill">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              ></path>
             </svg>
             Konsultasi Gratis
           </UiButton>

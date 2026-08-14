@@ -21,7 +21,7 @@ const setupScatterCanvas = modifier((canvas) => {
   const mouse = {
     x: -1000,
     y: -1000,
-    radius: 170
+    radius: 170,
   };
 
   const createParticles = () => {
@@ -39,7 +39,7 @@ const setupScatterCanvas = modifier((canvas) => {
         size: Math.random() * 2.8 + 1.2,
         color: colors[Math.floor(Math.random() * colors.length)],
         density: Math.random() * 25 + 8,
-        alpha: Math.random() * 0.5 + 0.4
+        alpha: Math.random() * 0.5 + 0.4,
       });
     }
   };
@@ -108,8 +108,8 @@ const setupScatterCanvas = modifier((canvas) => {
 
       if (distance < mouse.radius) {
         const force = (mouse.radius - distance) / mouse.radius;
-        const directionX = (dx / distance) || 0;
-        const directionY = (dy / distance) || 0;
+        const directionX = dx / distance || 0;
+        const directionY = dy / distance || 0;
         p.vx -= directionX * force * (p.density / 3);
         p.vy -= directionY * force * (p.density / 3);
       }
@@ -180,8 +180,11 @@ const setupMatrixCanvas = modifier((canvas) => {
 
   const fontSize = 12;
   const columns = Math.floor(width / fontSize) + 1;
-  const drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -60));
-  const chars = '0123456789ABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZアァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+  const drops = Array.from({ length: columns }, () =>
+    Math.floor(Math.random() * -60),
+  );
+  const chars =
+    '0123456789ABCDEFABCDEFGHIJKLMNOPQRSTUVWXYZアァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
 
   const handleResize = () => {
     if (!parent) return;
@@ -239,22 +242,95 @@ const setupTypingCode = modifier((container) => {
   if (!container) return;
 
   const CODE_LINES = [
-    { num: '01', tokens: [{ text: 'import', class: 'kw' }, { text: ' { ' }, { text: 'NeuralEngine', class: 'type' }, { text: ' } ' }, { text: 'from', class: 'kw' }, { text: ' ' }, { text: "'@aifl/core'", class: 'str' }, { text: ';' }] },
+    {
+      num: '01',
+      tokens: [
+        { text: 'import', class: 'kw' },
+        { text: ' { ' },
+        { text: 'NeuralEngine', class: 'type' },
+        { text: ' } ' },
+        { text: 'from', class: 'kw' },
+        { text: ' ' },
+        { text: "'@aifl/core'", class: 'str' },
+        { text: ';' },
+      ],
+    },
     { num: '02', tokens: [] },
-    { num: '03', tokens: [{ text: '// Initializing Green Code Engine...', class: 'cmt' }] },
-    { num: '04', tokens: [{ text: 'const', class: 'kw' }, { text: ' engine = ' }, { text: 'new', class: 'kw' }, { text: ' ' }, { text: 'NeuralEngine', class: 'type' }, { text: '({ mode: ' }, { text: "'QUANTUM'", class: 'str' }, { text: ' });' }] },
-    { num: '05', tokens: [{ text: 'await', class: 'kw' }, { text: ' engine.' }, { text: 'initAutonomousLoop', class: 'fn' }, { text: '();' }] },
+    {
+      num: '03',
+      tokens: [{ text: '// Initializing Green Code Engine...', class: 'cmt' }],
+    },
+    {
+      num: '04',
+      tokens: [
+        { text: 'const', class: 'kw' },
+        { text: ' engine = ' },
+        { text: 'new', class: 'kw' },
+        { text: ' ' },
+        { text: 'NeuralEngine', class: 'type' },
+        { text: '({ mode: ' },
+        { text: "'QUANTUM'", class: 'str' },
+        { text: ' });' },
+      ],
+    },
+    {
+      num: '05',
+      tokens: [
+        { text: 'await', class: 'kw' },
+        { text: ' engine.' },
+        { text: 'initAutonomousLoop', class: 'fn' },
+        { text: '();' },
+      ],
+    },
     { num: '06', tokens: [] },
-    { num: '07', tokens: [{ text: 'const', class: 'kw' }, { text: ' stream = engine.' }, { text: 'subscribe', class: 'fn' }, { text: '({ throughput: ' }, { text: "'1.4 GB/s'", class: 'str' }, { text: ' });' }] },
-    { num: '08', tokens: [{ text: 'stream.' }, { text: 'on', class: 'fn' }, { text: '(' }, { text: "'data'", class: 'str' }, { text: ', (' }, { text: 'chunk', class: 'type' }, { text: ') => {' }] },
-    { num: '09', tokens: [{ text: '  process.stdout.' }, { text: 'write', class: 'fn' }, { text: '(chunk.' }, { text: 'glow', class: 'fn' }, { text: '());' }] },
-    { num: '10', tokens: [{ text: '});' }] }
+    {
+      num: '07',
+      tokens: [
+        { text: 'const', class: 'kw' },
+        { text: ' stream = engine.' },
+        { text: 'subscribe', class: 'fn' },
+        { text: '({ throughput: ' },
+        { text: "'1.4 GB/s'", class: 'str' },
+        { text: ' });' },
+      ],
+    },
+    {
+      num: '08',
+      tokens: [
+        { text: 'stream.' },
+        { text: 'on', class: 'fn' },
+        { text: '(' },
+        { text: "'data'", class: 'str' },
+        { text: ', (' },
+        { text: 'chunk', class: 'type' },
+        { text: ') => {' },
+      ],
+    },
+    {
+      num: '09',
+      tokens: [
+        { text: '  process.stdout.' },
+        { text: 'write', class: 'fn' },
+        { text: '(chunk.' },
+        { text: 'glow', class: 'fn' },
+        { text: '());' },
+      ],
+    },
+    { num: '10', tokens: [{ text: '});' }] },
   ];
 
   const LOG_ROWS = [
     { type: 'info', tag: '[SYS]', msg: 'Quantum Core #AIFL-09 ONLINE' },
-    { type: 'success', tag: '[OK]', msg: 'Target compiled in 0.38s | GPU acceleration enabled' },
-    { type: 'prompt', tag: '>>>', msg: 'aifl-daemon --execute-stream (Active 60 FPS)' }
+    {
+      type: 'success',
+      tag: '[OK]',
+      msg: 'Target compiled in 0.38s | GPU acceleration enabled',
+    },
+    {
+      type: 'prompt',
+      tag: '>>>',
+      msg: 'aifl-daemon --execute-stream (Active 60 FPS)',
+    },
   ];
 
   let timeoutId;
@@ -399,11 +475,16 @@ export default class HeroSection extends Component {
   <template>
     <section class="hero-section" id="hero">
       <canvas class="hero-scatter-canvas" {{this.setupScatterCanvas}}></canvas>
-      
-      {{!-- Animated Right Orbital System --}}
+
+      {{! Animated Right Orbital System }}
       <div class="hero-orbital-system" aria-hidden="true">
         <div class="orbital-ring-layer orbital-layer-outer">
-          <svg class="orbital-svg" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            class="orbital-svg"
+            viewBox="0 0 800 800"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <circle cx="400" cy="400" r="385" class="orbit-faint-line" />
             <circle cx="400" cy="400" r="360" class="orbit-outer-segmented" />
             <circle cx="124" cy="168" r="11" class="orbit-node-primary" />
@@ -413,7 +494,12 @@ export default class HeroSection extends Component {
         </div>
 
         <div class="orbital-ring-layer orbital-layer-mid">
-          <svg class="orbital-svg" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            class="orbital-svg"
+            viewBox="0 0 800 800"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <circle cx="400" cy="400" r="270" class="orbit-mid-dashed" />
             <circle cx="166" cy="535" r="7" class="orbit-node-teal" />
             <circle cx="660" cy="330" r="5" class="orbit-node-teal" />
@@ -421,7 +507,12 @@ export default class HeroSection extends Component {
         </div>
 
         <div class="orbital-ring-layer orbital-layer-inner">
-          <svg class="orbital-svg" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            class="orbital-svg"
+            viewBox="0 0 800 800"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <circle cx="400" cy="400" r="175" class="orbit-inner-arc" />
             <circle cx="400" cy="400" r="85" class="orbit-core-circle" />
             <line x1="655" y1="145" x2="675" y2="125" class="orbit-axis-tick" />
@@ -429,24 +520,36 @@ export default class HeroSection extends Component {
           </svg>
         </div>
       </div>
-      
+
       <div class="hero-content">
         <UiBadge @showDot={{true}} @variant="fill">
           AIFL SERVICES — Your One Stop Solution for your IT needs
         </UiBadge>
-        
+
         <h1 class="hero-main-title">
-          Digital Solutions That Help Organizations <span class="brand-gradient-text">Work Better</span>
+          Digital Solutions That Help Organizations
+          <span class="brand-gradient-text">Work Better</span>
         </h1>
-        
+
         <p class="hero-description">
-          Membantu organisasi mendapatkan kontrol yang lebih baik atas data, aktivitas tim, dan proses kerja melalui solusi digital yang dirancang sesuai kebutuhan bisnis.
+          Membantu organisasi mendapatkan kontrol yang lebih baik atas data,
+          aktivitas tim, dan proses kerja melalui solusi digital yang dirancang
+          sesuai kebutuhan bisnis.
         </p>
 
         <div class="hero-cta">
           <UiButton @href="#contact" @variant="primary">
             Diskusi Kebutuhan Bisnis
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            ><line x1="5" y1="12" x2="19" y2="12"></line><polyline
+                points="12 5 19 12 12 19"
+              ></polyline></svg>
           </UiButton>
           <UiButton @href="#about" @variant="secondary">
             Pelajari Pendekatan Kami
@@ -456,21 +559,24 @@ export default class HeroSection extends Component {
 
       <div class="hero-visual-wrapper">
         {{! template-lint-disable no-invalid-interactive }}
-        <div 
+        <div
           class="hero-parallax-card laptop-showcase-card"
           {{on "mousemove" this.handleMouseMove}}
           {{on "mouseleave" this.handleMouseLeave}}
         >
-          {{!-- Laptop Graphic Container --}}
+          {{! Laptop Graphic Container }}
           <div class="laptop-container">
-            {{!-- Laptop Screen Lid --}}
+            {{! Laptop Screen Lid }}
             <div class="laptop-screen">
               <div class="laptop-camera"></div>
               <div class="laptop-screen-glass">
-                <canvas class="laptop-matrix-canvas" {{this.setupMatrixCanvas}}></canvas>
+                <canvas
+                  class="laptop-matrix-canvas"
+                  {{this.setupMatrixCanvas}}
+                ></canvas>
                 <div class="terminal-scanlines"></div>
 
-                {{!-- Terminal Window Frame --}}
+                {{! Terminal Window Frame }}
                 <div class="laptop-terminal-window">
                   <div class="terminal-header">
                     <div class="terminal-dots">
@@ -490,7 +596,10 @@ export default class HeroSection extends Component {
                     </div>
                   </div>
 
-                  <div class="terminal-content-view matrix-view fade-in" {{this.setupTypingCode}}>
+                  <div
+                    class="terminal-content-view matrix-view fade-in"
+                    {{this.setupTypingCode}}
+                  >
                   </div>
 
                   <div class="screen-glow-overlay"></div>
@@ -498,7 +607,7 @@ export default class HeroSection extends Component {
               </div>
             </div>
 
-            {{!-- Laptop Base Keyboard --}}
+            {{! Laptop Base Keyboard }}
             <div class="laptop-base">
               <div class="laptop-notch"></div>
               <div class="laptop-reflection"></div>
@@ -506,7 +615,7 @@ export default class HeroSection extends Component {
           </div>
         </div>
 
-        {{!-- Floating Badges for Depth Parallax Layer --}}
+        {{! Floating Badges for Depth Parallax Layer }}
         <div class="floating-badge float-top-right">
           <div>
             <div class="badge-title">AIFL Software Design</div>

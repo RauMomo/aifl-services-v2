@@ -12,7 +12,10 @@ export default class UiBadge extends Component {
   }
 
   <template>
-    <div class="ui-badge {{this.variantClass}} {{this.sizeClass}}" ...attributes>
+    <div
+      class="ui-badge {{this.variantClass}} {{this.sizeClass}}"
+      ...attributes
+    >
       {{#if @showDot}}
         <span class="ui-badge-dot"></span>
       {{/if}}

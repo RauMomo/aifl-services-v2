@@ -7,15 +7,6 @@
     "checkJs": false,
     "noEmit": true
   },
-  "include": [
-    "app/**/*.js",
-    "tests/**/*.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tmp",
-    "app/**/*.gjs",
-    "app/**/*.gts"
-  ]
+  "include": ["app/**/*.js", "tests/**/*.js"],
+  "exclude": ["node_modules", "dist", "tmp", "app/**/*.gjs", "app/**/*.gts"]
 }

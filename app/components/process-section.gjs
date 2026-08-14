@@ -7,10 +7,13 @@ export default class ProcessSection extends Component {
       <div class="section-header">
         <UiBadge @variant="muted">CARA KAMI BEKERJA</UiBadge>
         <h2 class="section-title">
-          5 Tahap Metodologi <span class="brand-gradient-text">Pengembangan Solusi</span>
+          5 Tahap Metodologi
+          <span class="brand-gradient-text">Pengembangan Solusi</span>
         </h2>
         <p class="section-subtitle">
-          Pendekatan terstruktur kami memastikan solusi digital yang dibangun benar-benar menjawab kebutuhan operasional dan dapat diadopsi dengan sukses.
+          Pendekatan terstruktur kami memastikan solusi digital yang dibangun
+          benar-benar menjawab kebutuhan operasional dan dapat diadopsi dengan
+          sukses.
         </p>
       </div>
 
@@ -21,7 +24,8 @@ export default class ProcessSection extends Component {
             Understand
           </h3>
           <p class="process-step-desc">
-            Memahami proses berjalan, hambatan yang terjadi, kebutuhan pengguna, dan tujuan bisnis organisasi secara mendalam.
+            Memahami proses berjalan, hambatan yang terjadi, kebutuhan pengguna,
+            dan tujuan bisnis organisasi secara mendalam.
           </p>
         </div>
 
@@ -31,7 +35,8 @@ export default class ProcessSection extends Component {
             Analyze
           </h3>
           <p class="process-step-desc">
-            Mengidentifikasi alur yang dapat diperbaiki, aktivitas yang didigitalisasi, serta data yang wajib dikontrol.
+            Mengidentifikasi alur yang dapat diperbaiki, aktivitas yang
+            didigitalisasi, serta data yang wajib dikontrol.
           </p>
         </div>
 
@@ -41,7 +46,8 @@ export default class ProcessSection extends Component {
             Design
           </h3>
           <p class="process-step-desc">
-            Merancang solusi digital yang spesifik. Bukan solusi generik, melainkan sesuai kondisi nyata bisnis Anda.
+            Merancang solusi digital yang spesifik. Bukan solusi generik,
+            melainkan sesuai kondisi nyata bisnis Anda.
           </p>
         </div>
 
@@ -51,7 +57,8 @@ export default class ProcessSection extends Component {
             Develop
           </h3>
           <p class="process-step-desc">
-            Membangun sistem mengutamakan kemudahan pengguna, stabilitas tinggi, dan kesiapan skalabilitas masa depan.
+            Membangun sistem mengutamakan kemudahan pengguna, stabilitas tinggi,
+            dan kesiapan skalabilitas masa depan.
           </p>
         </div>
 
@@ -61,7 +68,8 @@ export default class ProcessSection extends Component {
             Support
           </h3>
           <p class="process-step-desc">
-            Pendampingan penuh memastikan solusi benar-benar aktif digunakan dan memberikan dampak operasional positif.
+            Pendampingan penuh memastikan solusi benar-benar aktif digunakan dan
+            memberikan dampak operasional positif.
           </p>
         </div>
       </div>

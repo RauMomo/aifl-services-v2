@@ -8,12 +8,15 @@ export default class FooterSection extends Component {
           <a href="#" class="nav-brand nav-brand-inline">
             <img src="/logo.png" alt="AIFL Services" class="brand-logo-img" />
             <div class="brand-text">
-              <span class="brand-name">AIFL <span class="brand-name-highlight">SERVICES</span></span>
+              <span class="brand-name">AIFL
+                <span class="brand-name-highlight">SERVICES</span></span>
               <span class="brand-tag">Digital Solutions</span>
             </div>
           </a>
           <p>
-            Membantu organisasi mendapatkan kontrol yang lebih baik atas data, aktivitas tim, dan proses kerja melalui solusi digital yang dirancang sesuai kebutuhan bisnis.
+            Membantu organisasi mendapatkan kontrol yang lebih baik atas data,
+            aktivitas tim, dan proses kerja melalui solusi digital yang
+            dirancang sesuai kebutuhan bisnis.
           </p>
         </div>
 
@@ -50,7 +53,8 @@ export default class FooterSection extends Component {
 
       <div class="footer-bottom">
         <div>
-          © 2026 AIFL SERVICES. All Rights Reserved. Digital Solutions for Better Operational Control.
+          © 2026 AIFL SERVICES. All Rights Reserved. Digital Solutions for
+          Better Operational Control.
         </div>
         <div class="footer-copyright-links">
           <a href="#hero" class="footer-link">Kembali ke Atas ↑</a>

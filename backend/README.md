@@ -7,10 +7,12 @@ Production-ready Golang REST API backend with entities for **Contact Us**, **Pro
 ## 🛠️ Entities & API Endpoints
 
 ### 1. Contact Us (`/api/v1/contact`)
+
 - `POST /api/v1/contact` - Submit a new consultation / contact request
 - `GET /api/v1/contact/list` - Retrieve all submitted contact requests
 
 #### Sample Payload (`POST /api/v1/contact`):
+
 ```json
 {
   "name": "Budi Santoso",
@@ -24,10 +26,12 @@ Production-ready Golang REST API backend with entities for **Contact Us**, **Pro
 ---
 
 ### 2. Projects (`/api/v1/projects`)
+
 - `GET /api/v1/projects` - List all portfolio projects / case studies
 - `POST /api/v1/projects` - Add a new project
 
 #### Sample Payload (`POST /api/v1/projects`):
+
 ```json
 {
   "title": "Enterprise Resource Control System",
@@ -44,10 +48,12 @@ Production-ready Golang REST API backend with entities for **Contact Us**, **Pro
 ---
 
 ### 3. Testimonials (`/api/v1/testimonials`)
+
 - `GET /api/v1/testimonials` - Retrieve client testimonials
 - `POST /api/v1/testimonials` - Submit a new client review
 
 #### Sample Payload (`POST /api/v1/testimonials`):
+
 ```json
 {
   "author_name": "Hendry Prasetya",
@@ -74,6 +80,7 @@ go run main.go
 The server will start at `http://localhost:8080`.
 
 Test the health check endpoint:
+
 ```bash
 curl http://localhost:8080/health
 ```
