@@ -1,0 +1,29 @@
+meta {
+  name: Testimonials - Create Testimonial (Protected)
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/v1/testimonials
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "author_name": "Rina Wijaya",
+    "position": "Director of Technology",
+    "company": "PT Digital Sukses Mandiri",
+    "quote": "Tim AIFL berhasil memetakan masalah operasional kami dan memberikan solusi perangkat lunak yang sangat intuitif dan kuat.",
+    "rating": 5
+  }
+}

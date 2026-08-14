@@ -1,0 +1,15 @@
+meta {
+  name: Contact - Get List (Protected)
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/contact/list
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

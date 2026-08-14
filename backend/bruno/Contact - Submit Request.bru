@@ -1,0 +1,25 @@
+meta {
+  name: Contact - Submit Request
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/contact
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Budi Santoso",
+    "email": "budi@example.com",
+    "company": "PT Nusantara Synergy",
+    "subject": "Diskusi Digitalisasi Operasional",
+    "message": "Kami ingin berkonsultasi mengenai pengembangan aplikasi kustom dan otomatisasi alur kerja tim kami."
+  }
+}

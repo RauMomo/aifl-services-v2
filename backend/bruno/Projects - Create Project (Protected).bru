@@ -1,0 +1,32 @@
+meta {
+  name: Projects - Create Project (Protected)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/v1/projects
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}
+
+body:json {
+  {
+    "title": "Smart Logistics Control System",
+    "description": "Sistem kontrol logistik dan otomatisasi manajemen armada pengiriman barang.",
+    "category": "Operational Control",
+    "client_name": "PT Trans Logistik Utama",
+    "image_url": "/aifl-software-mockup.png",
+    "tags": ["Golang", "Workflow Automation", "Redis"],
+    "impact_metrics": ["Waktu Pengiriman -35%", "Akurasi Real-time 99.9%"],
+    "is_featured": true
+  }
+}
