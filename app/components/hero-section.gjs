@@ -712,15 +712,15 @@ export default class HeroSection extends Component {
         {{! Floating Badges for Depth Parallax Layer }}
         <div class="floating-badge float-top-right">
           <div>
-            <div class="badge-title">AIFL Software Design</div>
-            <div class="badge-desc">Mockup UI/UX Kustom & Modern</div>
+            <div class="badge-title">Solusi Digital Terintegrasi</div>
+            <div class="badge-desc">Pengembangan Custom & Modern UI/UX</div>
           </div>
         </div>
 
         <div class="floating-badge float-bottom-left">
           <div>
-            <div class="badge-title">Responsif & Intuitif</div>
-            <div class="badge-desc">Dirancang khusus untuk tim Anda</div>
+            <div class="badge-title">Kontrol Operasional Real-Time</div>
+            <div class="badge-desc">Presisi Sesuai Kebutuhan Bisnis</div>
           </div>
         </div>
       </div>
