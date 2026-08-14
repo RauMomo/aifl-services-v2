@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
+	"aifl-backend/config"
 	"aifl-backend/logger"
 
 	"github.com/redis/go-redis/v9"
@@ -19,29 +19,36 @@ var (
 
 // InitRedis initializes the Redis client or sets graceful fallback mode
 func InitRedis() {
-	redisURL := os.Getenv("REDIS_URL")
 	var opts *redis.Options
+
+	redisURL := ""
+	host := "localhost"
+	port := "6379"
+	password := ""
+
+	if config.AppConfig != nil {
+		redisURL = config.AppConfig.Redis.URL
+		if config.AppConfig.Redis.Host != "" {
+			host = config.AppConfig.Redis.Host
+		}
+		if config.AppConfig.Redis.Port != "" {
+			port = config.AppConfig.Redis.Port
+		}
+		password = config.AppConfig.Redis.Password
+	}
 
 	if redisURL != "" {
 		parsedOpts, err := redis.ParseURL(redisURL)
 		if err != nil {
-			logger.Log.Warn("Invalid REDIS_URL format, falling back to localhost", "error", err.Error())
-			opts = &redis.Options{Addr: "localhost:6379"}
+			logger.Log.Warn("Invalid REDIS_URL format, falling back to host:port", "error", err.Error())
+			opts = &redis.Options{Addr: fmt.Sprintf("%s:%s", host, port), Password: password}
 		} else {
 			opts = parsedOpts
 		}
 	} else {
-		host := os.Getenv("REDIS_HOST")
-		if host == "" {
-			host = "localhost"
-		}
-		port := os.Getenv("REDIS_PORT")
-		if port == "" {
-			port = "6379"
-		}
 		opts = &redis.Options{
 			Addr:     fmt.Sprintf("%s:%s", host, port),
-			Password: os.Getenv("REDIS_PASSWORD"),
+			Password: password,
 			DB:       0,
 		}
 	}

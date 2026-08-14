@@ -1,0 +1,35 @@
+# ==============================================================================
+# AIFL Enterprise Golang Backend Configuration
+# Powered by SPF13 Viper
+# ==============================================================================
+
+server:
+  port: "8200"
+  env: "development"
+  read_timeout: "15s"
+  write_timeout: "15s"
+  idle_timeout: "60s"
+
+database:
+  path: "aifl.db"
+  engine: "sqlite"
+
+redis:
+  url: ""
+  host: "localhost"
+  port: "6379"
+  password: ""
+
+jwt:
+  secret: "aifl-jwt-secret-key-production-change"
+  expiration_hours: 24
+
+imagekit:
+  public_key: ""
+  private_key: ""
+  url_endpoint: "https://ik.imagekit.io/1cazkvh4zv"
+
+admin:
+  initial_username: "admin"
+  initial_password: "admin123"
+  initial_email: "admin@aiflservices.com"

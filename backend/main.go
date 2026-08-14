@@ -3,17 +3,23 @@ package main
 import (
 	"net/http"
 	"os"
-	"time"
 
+	"aifl-backend/config"
 	"aifl-backend/db"
 	"aifl-backend/logger"
 	"aifl-backend/routes"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8200"
+	// Load configuration using SPF13 Viper (config.yaml + Environment variables)
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		logger.Log.Warn("Failed to load Viper configuration", "error", err.Error())
+	}
+
+	port := cfg.Server.Port
+	if envPort := os.Getenv("PORT"); envPort != "" {
+		port = envPort
 	}
 
 	// Initialize Database (GORM SQLite) & Seed Default Admin Account
@@ -28,13 +34,15 @@ func main() {
 	server := &http.Server{
 		Addr:         ":" + port,
 		Handler:      handler,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
+		ReadTimeout:  cfg.Server.ReadTimeout,
+		WriteTimeout: cfg.Server.WriteTimeout,
+		IdleTimeout:  cfg.Server.IdleTimeout,
 	}
 
 	logger.Log.Info("🚀 AIFL Golang Enterprise Backend Server started",
 		"port", port,
+		"env", cfg.Server.Env,
+		"config", "config.yaml",
 		"health", "http://localhost:"+port+"/health",
 		"auth_login", "http://localhost:"+port+"/api/v1/auth/login",
 	)

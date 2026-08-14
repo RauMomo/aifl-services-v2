@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 
+	"aifl-backend/config"
 	"aifl-backend/logger"
 
 	"github.com/imagekit-developer/imagekit-go/v2"
@@ -33,10 +34,23 @@ func NewImageKitService() *ImageKitService {
 	privateKey := os.Getenv("IMAGEKIT_PRIVATE_KEY")
 	urlEndpoint := os.Getenv("IMAGEKIT_URL_ENDPOINT")
 
+	if config.AppConfig != nil {
+		if publicKey == "" {
+			publicKey = config.AppConfig.ImageKit.PublicKey
+		}
+		if privateKey == "" {
+			privateKey = config.AppConfig.ImageKit.PrivateKey
+		}
+		if urlEndpoint == "" {
+			urlEndpoint = config.AppConfig.ImageKit.URLEndpoint
+		}
+	}
+
 	if publicKey == "" || privateKey == "" || urlEndpoint == "" {
-		logger.Log.Warn("⚠️ ImageKit credentials missing. Set IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT environment variables to enable ImageKit cloud uploads.")
+		logger.Log.Warn("⚠️ ImageKit credentials incomplete. Set IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT in config.yaml or environment variables to enable cloud uploads.", "url_endpoint", urlEndpoint)
 		return &ImageKitService{
 			isConfigured: false,
+			urlEndpoint:  urlEndpoint,
 		}
 	}
 
@@ -66,7 +80,7 @@ func (s *ImageKitService) IsConfigured() bool {
 
 func (s *ImageKitService) UploadFile(ctx context.Context, fileReader io.Reader, fileName string, folder string) (*UploadResult, error) {
 	if !s.isConfigured {
-		return nil, errors.New("ImageKit Client is not configured. Please set IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT in environment variables")
+		return nil, errors.New("ImageKit Client is not fully configured. Please set IMAGEKIT_PUBLIC_KEY and IMAGEKIT_PRIVATE_KEY in config.yaml or environment variables")
 	}
 
 	if folder == "" {

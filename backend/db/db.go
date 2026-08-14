@@ -2,9 +2,9 @@ package db
 
 import (
 	"fmt"
-	"os"
 	"time"
 
+	"aifl-backend/config"
 	"aifl-backend/logger"
 	"aifl-backend/models"
 
@@ -18,9 +18,9 @@ var DB *gorm.DB
 
 // InitDB initializes GORM database, auto-migrates tables, and seeds initial Admin
 func InitDB() {
-	dbPath := os.Getenv("DATABASE_PATH")
-	if dbPath == "" {
-		dbPath = "aifl.db"
+	dbPath := "aifl.db"
+	if config.AppConfig != nil && config.AppConfig.Database.Path != "" {
+		dbPath = config.AppConfig.Database.Path
 	}
 
 	gormConfig := &gorm.Config{
@@ -61,14 +61,20 @@ func SeedDefaultAdmin() {
 		return
 	}
 
-	defaultUsername := os.Getenv("ADMIN_INITIAL_USERNAME")
-	if defaultUsername == "" {
-		defaultUsername = "admin"
-	}
+	defaultUsername := "admin"
+	defaultPassword := "admin123"
+	defaultEmail := "admin@aiflservices.com"
 
-	defaultPassword := os.Getenv("ADMIN_INITIAL_PASSWORD")
-	if defaultPassword == "" {
-		defaultPassword = "admin123"
+	if config.AppConfig != nil {
+		if config.AppConfig.Admin.InitialUsername != "" {
+			defaultUsername = config.AppConfig.Admin.InitialUsername
+		}
+		if config.AppConfig.Admin.InitialPassword != "" {
+			defaultPassword = config.AppConfig.Admin.InitialPassword
+		}
+		if config.AppConfig.Admin.InitialEmail != "" {
+			defaultEmail = config.AppConfig.Admin.InitialEmail
+		}
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(defaultPassword), bcrypt.DefaultCost)
@@ -80,7 +86,7 @@ func SeedDefaultAdmin() {
 	admin := models.AdminUser{
 		ID:           fmt.Sprintf("usr-%d", time.Now().UnixNano()),
 		Username:     defaultUsername,
-		Email:        "admin@aiflservices.com",
+		Email:        defaultEmail,
 		PasswordHash: string(hash),
 		Role:         "admin",
 		CreatedAt:    time.Now(),

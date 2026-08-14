@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"aifl-backend/config"
 	"aifl-backend/db"
 	"aifl-backend/logger"
 	"aifl-backend/models"
@@ -27,6 +28,9 @@ func NewAuthHandler() *AuthHandler {
 
 func getJWTSecret() []byte {
 	secret := os.Getenv("JWT_SECRET")
+	if config.AppConfig != nil && config.AppConfig.JWT.Secret != "" {
+		secret = config.AppConfig.JWT.Secret
+	}
 	if secret == "" {
 		secret = "aifl-jwt-secret-key-production-change"
 	}
@@ -90,8 +94,13 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	expHours := 24
+	if config.AppConfig != nil && config.AppConfig.JWT.ExpirationHours > 0 {
+		expHours = config.AppConfig.JWT.ExpirationHours
+	}
+
 	// Generate JWT Token
-	expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(time.Duration(expHours) * time.Hour)
 	claims := &models.JWTClaims{
 		UserID:   user.ID,
 		Username: user.Username,
