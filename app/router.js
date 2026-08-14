@@ -6,4 +6,9 @@ export default class Router extends EmberRouter {
   rootURL = config.rootURL;
 }
 
-Router.map(function () {});
+Router.map(function () {
+  // Disguised Admin Authentication & Dashboard Routes
+  this.route('portal-access', function () {
+    this.route('dashboard');
+  });
+});

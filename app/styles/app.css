@@ -3025,3 +3025,410 @@ body {
   transform: translateY(-50%) translateX(0);
 }
 
+/* ==============================================================================
+   Admin Disguised Portal & Control Center Styling (/portal-access)
+   ============================================================================== */
+
+.admin-portal-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.admin-portal-card {
+  width: 100%;
+  max-width: 1040px;
+  min-height: 580px;
+  background: rgba(13, 19, 32, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+/* Left Block: IT Cyber Image & Overlay */
+.admin-portal-left {
+  position: relative;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2.5rem;
+  background: #060b14;
+}
+
+.admin-hero-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.65;
+  filter: contrast(1.1) brightness(0.9);
+  transition: transform 10s ease;
+}
+
+.admin-portal-card:hover .admin-hero-image {
+  transform: scale(1.05);
+}
+
+.admin-left-overlay {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(6, 11, 20, 0.4) 0%, rgba(6, 11, 20, 0.85) 100%);
+  margin: -2.5rem;
+  padding: 2.5rem;
+}
+
+.admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 0.4rem 0.85rem;
+  border-radius: 20px;
+  width: fit-content;
+  backdrop-filter: blur(8px);
+}
+
+.status-dot.green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.admin-left-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+
+.admin-left-subtitle {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.admin-metrics-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #a7f3d0;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+}
+
+/* Right Block: Glassmorphic Login Form */
+.admin-portal-right {
+  padding: 3rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: rgba(13, 19, 32, 0.95);
+}
+
+.admin-form-header {
+  margin-bottom: 2rem;
+}
+
+.admin-form-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.admin-form-subtitle {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin-input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #ffffff;
+  padding: 0.85rem 1rem 0.85rem 2.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.925rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.admin-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.85rem;
+  font-size: 0.9rem;
+  opacity: 0.6;
+}
+
+.toggle-pass-btn {
+  position: absolute;
+  right: 0.85rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.admin-submit-btn {
+  width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+}
+
+.admin-error-box {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Protected Admin Dashboard Styling */
+.admin-dashboard-container {
+  min-height: 100vh;
+  padding: 2rem 3rem 4rem;
+  position: relative;
+  z-index: 10;
+}
+
+.admin-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(13, 19, 32, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  padding: 1.25rem 2rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 2rem;
+  backdrop-filter: blur(16px);
+}
+
+.admin-bar-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-left: 1rem;
+}
+
+.admin-user-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.admin-logout-btn {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.admin-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-stat-card {
+  background: rgba(13, 19, 32, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(12px);
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #3b82f6;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value.green { color: #10b981; }
+.stat-value.cyan { color: #06b6d4; }
+.stat-value.amber { color: #f59e0b; }
+
+.stat-meta {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.admin-panel-card {
+  background: rgba(13, 19, 32, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  backdrop-filter: blur(16px);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.875rem;
+}
+
+.admin-table th {
+  background: rgba(15, 23, 42, 0.9);
+  color: #94a3b8;
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  vertical-align: top;
+}
+
+.cell-time {
+  font-size: 0.78rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.cell-name {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.cell-email {
+  color: #38bdf8;
+}
+
+.cell-message p {
+  margin: 0.25rem 0 0;
+  font-size: 0.825rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.status-badge.unread {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .admin-portal-card {
+    grid-template-columns: 1fr;
+  }
+  .admin-portal-left {
+    min-height: 280px;
+  }
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
