@@ -2946,8 +2946,10 @@ body {
 }
 
 .whatsapp-icon-box {
-  width: 56px;
-  height: 56px;
+  width: 104px;
+  height: 104px;
+  flex-shrink: 0;
+  box-sizing: border-box;
   border-radius: 50%;
   background: linear-gradient(135deg, #25d366, #128c7e);
   display: flex;
@@ -2987,7 +2989,8 @@ body {
 
 .whatsapp-tooltip {
   position: absolute;
-  right: 68px;
+  top: 50%;
+  right: calc(100% + 14px);
   white-space: nowrap;
   background: rgba(13, 20, 36, 0.95);
   border: 1px solid rgba(37, 211, 102, 0.4);
@@ -2998,14 +3001,27 @@ body {
   border-radius: 20px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
   opacity: 0;
-  transform: translateX(10px);
+  transform: translateY(-50%) translateX(10px);
   pointer-events: none;
   transition: opacity 0.3s ease, transform 0.3s ease;
   backdrop-filter: blur(8px);
 }
 
+.whatsapp-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -5px;
+  transform: translateY(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: rgba(13, 20, 36, 0.95);
+  border-right: 1px solid rgba(37, 211, 102, 0.4);
+  border-top: 1px solid rgba(37, 211, 102, 0.4);
+}
+
 .whatsapp-fab:hover .whatsapp-tooltip {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(-50%) translateX(0);
 }
 
