@@ -3,38 +3,23 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
+	"aifl-backend/db"
+	"aifl-backend/logger"
 	"aifl-backend/models"
+	"aifl-backend/proto/pb"
+
+	"google.golang.org/protobuf/proto"
 )
 
-type ContactHandler struct {
-	mu       sync.RWMutex
-	contacts map[string]models.ContactUs
-}
+type ContactHandler struct{}
 
 func NewContactHandler() *ContactHandler {
-	h := &ContactHandler{
-		contacts: make(map[string]models.ContactUs),
-	}
-	
-	// Seed sample initial data
-	seedID := "ct-001"
-	h.contacts[seedID] = models.ContactUs{
-		ID:        seedID,
-		Name:      "Budi Santoso",
-		Email:     "budi@example.com",
-		Company:   "PT Maju Sejahtera",
-		Subject:   "Diskusi Digitalisasi Operasional",
-		Message:   "Kami tertarik untuk mengotomatisasi sistem pendaftaran dan audit internal perusahaan.",
-		Status:    "unread",
-		CreatedAt: time.Now().Add(-24 * time.Hour),
-	}
-	
-	return h
+	return &ContactHandler{}
 }
 
 // CreateContact handles POST /api/v1/contact
@@ -47,55 +32,60 @@ func (h *ContactHandler) CreateContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req struct {
-		Name    string `json:"name"`
-		Email   string `json:"email"`
-		Company string `json:"company"`
-		Subject string `json:"subject"`
-		Message string `json:"message"`
+	var req models.ContactUs
+
+	// Support both JSON & Protobuf payloads
+	if strings.Contains(r.Header.Get("Content-Type"), "application/x-protobuf") {
+		body, err := io.ReadAll(r.Body)
+		if err == nil {
+			var pbReq pb.CreateContactRequestProto
+			if proto.Unmarshal(body, &pbReq) == nil {
+				req.Name = pbReq.GetName()
+				req.Email = pbReq.GetEmail()
+				req.Company = pbReq.GetCompany()
+				req.Subject = pbReq.GetSubject()
+				req.Message = pbReq.GetMessage()
+			}
+		}
+	} else {
+		_ = json.NewDecoder(r.Body).Decode(&req)
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		respondJSON(w, http.StatusBadRequest, models.APIResponse{
-			Success: false,
-			Error:   "Invalid JSON request body",
-		})
-		return
-	}
+	req.Name = strings.TrimSpace(req.Name)
+	req.Email = strings.TrimSpace(req.Email)
+	req.Message = strings.TrimSpace(req.Message)
 
-	if strings.TrimSpace(req.Name) == "" || strings.TrimSpace(req.Email) == "" || strings.TrimSpace(req.Message) == "" {
+	if req.Name == "" || req.Email == "" || req.Message == "" {
 		respondJSON(w, http.StatusUnprocessableEntity, models.APIResponse{
 			Success: false,
-			Error:   "Name, email, and message are required fields",
+			Error:   "Nama, email, dan pesan wajib diisi",
 		})
 		return
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
+	req.ID = fmt.Sprintf("ct-%d", time.Now().UnixNano())
+	req.Status = "unread"
+	req.CreatedAt = time.Now()
 
-	id := fmt.Sprintf("ct-%d", time.Now().UnixNano())
-	contact := models.ContactUs{
-		ID:        id,
-		Name:      req.Name,
-		Email:     req.Email,
-		Company:   req.Company,
-		Subject:   req.Subject,
-		Message:   req.Message,
-		Status:    "unread",
-		CreatedAt: time.Now(),
+	if err := db.DB.Create(&req).Error; err != nil {
+		logger.Log.Error("Failed to insert contact in database", "error", err.Error())
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal menyimpan data pesan",
+		})
+		return
 	}
 
-	h.contacts[id] = contact
+	logger.Log.Info("📩 New contact submission created", "id", req.ID, "name", req.Name, "email", req.Email)
 
 	respondJSON(w, http.StatusCreated, models.APIResponse{
 		Success: true,
 		Message: "Pesan Anda telah berhasil dikirim. Tim AIFL akan menghubungi Anda segera.",
-		Data:    contact,
+		Data:    req,
 	})
 }
 
-// GetContacts handles GET /api/v1/contact
+// GetContacts handles GET /api/v1/contact/list
 func (h *ContactHandler) GetContacts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
@@ -105,23 +95,54 @@ func (h *ContactHandler) GetContacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.mu.RLock()
-	defer h.mu.RUnlock()
+	var contacts []models.ContactUs
+	if err := db.DB.Order("created_at desc").Find(&contacts).Error; err != nil {
+		logger.Log.Error("Failed to query contacts from database", "error", err.Error())
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal mengambil data kontak",
+		})
+		return
+	}
 
-	list := make([]models.ContactUs, 0, len(h.contacts))
-	for _, c := range h.contacts {
-		list = append(list, c)
+	acceptHeader := r.Header.Get("Accept")
+	if strings.Contains(acceptHeader, "application/x-protobuf") {
+		pbContacts := make([]*pb.ContactUsProto, 0, len(contacts))
+		for _, c := range contacts {
+			pbContacts = append(pbContacts, &pb.ContactUsProto{
+				Id:        c.ID,
+				Name:      c.Name,
+				Email:     c.Email,
+				Company:   c.Company,
+				Subject:   c.Subject,
+				Message:   c.Message,
+				Status:    c.Status,
+				CreatedAt: c.CreatedAt.Format(time.RFC3339),
+			})
+		}
+		pbResp := &pb.ContactListResponseProto{
+			Success:  true,
+			Message:  fmt.Sprintf("Retrieved %d contacts", len(contacts)),
+			Contacts: pbContacts,
+		}
+		data, err := proto.Marshal(pbResp)
+		if err == nil {
+			w.Header().Set("Content-Type", "application/x-protobuf")
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write(data)
+			return
+		}
 	}
 
 	respondJSON(w, http.StatusOK, models.APIResponse{
 		Success: true,
-		Data:    list,
+		Message: fmt.Sprintf("Berhasil mengambil %d pesan kontak", len(contacts)),
+		Data:    contacts,
 	})
 }
 
-// Helper function to send JSON response
-func respondJSON(w http.ResponseWriter, statusCode int, data models.APIResponse) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+func respondJSON(w http.ResponseWriter, statusCode int, payload models.APIResponse) {
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
-	_ = json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(payload)
 }

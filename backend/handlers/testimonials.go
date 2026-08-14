@@ -5,130 +5,135 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
+	"aifl-backend/db"
+	"aifl-backend/logger"
 	"aifl-backend/models"
 )
 
-type TestimonialHandler struct {
-	mu           sync.RWMutex
-	testimonials map[string]models.Testimonial
-}
+type TestimonialHandler struct{}
 
 func NewTestimonialHandler() *TestimonialHandler {
-	h := &TestimonialHandler{
-		testimonials: make(map[string]models.Testimonial),
-	}
-
-	// Seed realistic initial testimonials
-	t1 := models.Testimonial{
-		ID:         "testi-01",
-		AuthorName: "Hendry Prasetya",
-		Position:   "Head of Operations",
-		Company:    "PT Nusantara Synergy",
-		Quote:      "Solusi digital dari AIFL mengubah cara kami bekerja secara fundamental. Sistem penjadwalan dan tracking data kini berjalan otomatis tanpa error manual.",
-		Rating:     5,
-		AvatarURL:  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
-		CreatedAt:  time.Now().Add(-45 * 24 * time.Hour),
-	}
-
-	t2 := models.Testimonial{
-		ID:         "testi-02",
-		AuthorName: "Siti Rahmawati",
-		Position:   "Managing Director",
-		Company:    "Drive Master Academy",
-		Quote:      "Platform kustom AIFL sangat intuitif dan mudah digunakan oleh seluruh tim. Registrasi peserta meningkat drastis dan administrasi jauh lebih efisien.",
-		Rating:     5,
-		AvatarURL:  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
-		CreatedAt:  time.Now().Add(-20 * 24 * time.Hour),
-	}
-
-	t3 := models.Testimonial{
-		ID:         "testi-03",
-		AuthorName: "Bambang Wijaya",
-		Position:   "Internal Audit Manager",
-		Company:    "Global Manufacturing Corp",
-		Quote:      "Proses audit yang sebelumnya rumit kini dapat terpantau secara real-time. Transparansi dan akurasi data kami meningkat signifikan.",
-		Rating:     5,
-		AvatarURL:  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
-		CreatedAt:  time.Now().Add(-10 * 24 * time.Hour),
-	}
-
-	h.testimonials[t1.ID] = t1
-	h.testimonials[t2.ID] = t2
-	h.testimonials[t3.ID] = t3
-
+	h := &TestimonialHandler{}
+	h.seedDefaultTestimonials()
 	return h
+}
+
+func (h *TestimonialHandler) seedDefaultTestimonials() {
+	var count int64
+	db.DB.Model(&models.Testimonial{}).Count(&count)
+	if count > 0 {
+		return
+	}
+
+	samples := []models.Testimonial{
+		{
+			ID:         "testi-1",
+			AuthorName: "Hendry Prasetya",
+			Position:   "Head of Operations",
+			Company:    "PT Nusantara Synergy",
+			Quote:      "Solusi digital AIFL mengubah alur kerja manual kami menjadi terotomatisasi secara presisi dan efisien.",
+			Rating:     5,
+			CreatedAt:  time.Now(),
+		},
+		{
+			ID:         "testi-2",
+			AuthorName: "Budi Santoso",
+			Position:   "General Manager",
+			Company:    "PT Corporate Indonesia",
+			Quote:      "Dashboard monitoring dan aplikasi kustom AIFL memberikan kontrol penuh atas visibilitas tim kami.",
+			Rating:     5,
+			CreatedAt:  time.Now(),
+		},
+	}
+
+	for _, t := range samples {
+		db.DB.Create(&t)
+	}
+	logger.Log.Info("✅ Sample testimonials seeded into database")
 }
 
 // GetTestimonials handles GET /api/v1/testimonials
 func (h *TestimonialHandler) GetTestimonials(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
-			Success: false,
-			Error:   "Method not allowed",
+	cacheKey := "cache:testimonials:list"
+	var testimonials []models.Testimonial
+
+	// Check Redis Cache
+	if db.CacheGet(r.Context(), cacheKey, &testimonials) {
+		logger.Log.Debug("⚡ Serving testimonials list from Redis cache")
+		respondJSON(w, http.StatusOK, models.APIResponse{
+			Success: true,
+			Message: fmt.Sprintf("Berhasil mengambil %d testimoni (Cached)", len(testimonials)),
+			Data:    testimonials,
 		})
 		return
 	}
 
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	list := make([]models.Testimonial, 0, len(h.testimonials))
-	for _, t := range h.testimonials {
-		list = append(list, t)
+	if err := db.DB.Order("created_at desc").Find(&testimonials).Error; err != nil {
+		logger.Log.Error("Failed to fetch testimonials from database", "error", err.Error())
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal mengambil data testimoni",
+		})
+		return
 	}
+
+	// Cache result in Redis for 10 minutes
+	_ = db.CacheSet(r.Context(), cacheKey, testimonials, 10*time.Minute)
 
 	respondJSON(w, http.StatusOK, models.APIResponse{
 		Success: true,
-		Data:    list,
+		Message: fmt.Sprintf("Berhasil mengambil %d testimoni", len(testimonials)),
+		Data:    testimonials,
 	})
 }
 
 // CreateTestimonial handles POST /api/v1/testimonials
 func (h *TestimonialHandler) CreateTestimonial(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
-			Success: false,
-			Error:   "Method not allowed",
-		})
-		return
-	}
-
 	var req models.Testimonial
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondJSON(w, http.StatusBadRequest, models.APIResponse{
 			Success: false,
-			Error:   "Invalid JSON payload",
+			Error:   "Format JSON tidak valid",
 		})
 		return
 	}
 
-	if strings.TrimSpace(req.AuthorName) == "" || strings.TrimSpace(req.Quote) == "" {
+	req.AuthorName = strings.TrimSpace(req.AuthorName)
+	req.Quote = strings.TrimSpace(req.Quote)
+	if req.AuthorName == "" || req.Quote == "" {
 		respondJSON(w, http.StatusUnprocessableEntity, models.APIResponse{
 			Success: false,
-			Error:   "Author name and quote are required",
+			Error:   "Nama penulis dan kutipan testimoni wajib diisi",
 		})
 		return
 	}
 
-	if req.Rating <= 0 || req.Rating > 5 {
+	if req.Rating < 1 || req.Rating > 5 {
 		req.Rating = 5
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	id := fmt.Sprintf("testi-%d", time.Now().UnixNano())
-	req.ID = id
+	req.ID = fmt.Sprintf("testi-%d", time.Now().UnixNano())
 	req.CreatedAt = time.Now()
 
-	h.testimonials[id] = req
+	if err := db.DB.Create(&req).Error; err != nil {
+		logger.Log.Error("Failed to save testimonial to database", "error", err.Error())
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal menyimpan data testimoni",
+		})
+		return
+	}
+
+	// Invalidate Redis cache
+	db.CacheDelete(r.Context(), "cache:testimonials:list")
+
+	logger.Log.Info("⭐ New testimonial created", "id", req.ID, "author", req.AuthorName)
 
 	respondJSON(w, http.StatusCreated, models.APIResponse{
 		Success: true,
-		Message: "Testimonial added successfully",
+		Message: "Testimoni berhasil ditambahkan",
 		Data:    req,
 	})
 }

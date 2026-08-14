@@ -1,11 +1,12 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"aifl-backend/db"
+	"aifl-backend/logger"
 	"aifl-backend/routes"
 )
 
@@ -15,6 +16,13 @@ func main() {
 		port = "8080"
 	}
 
+	// Initialize Database (GORM SQLite) & Seed Default Admin Account
+	db.InitDB()
+
+	// Initialize Redis Client & Rate Limiter
+	db.InitRedis()
+
+	// Register API Routes & Middleware
 	handler := routes.RegisterRoutes()
 
 	server := &http.Server{
@@ -25,13 +33,14 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	log.Printf("🚀 AIFL Golang Backend Server running on port %s", port)
-	log.Printf("📌 Health Check endpoint: http://localhost:%s/health", port)
-	log.Printf("📌 Contact API: http://localhost:%s/api/v1/contact", port)
-	log.Printf("📌 Projects API: http://localhost:%s/api/v1/projects", port)
-	log.Printf("📌 Testimonials API: http://localhost:%s/api/v1/testimonials", port)
+	logger.Log.Info("🚀 AIFL Golang Enterprise Backend Server started",
+		"port", port,
+		"health", "http://localhost:"+port+"/health",
+		"auth_login", "http://localhost:"+port+"/api/v1/auth/login",
+	)
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("❌ Server failed to start: %v", err)
+		logger.Log.Error("❌ Server failed to start", "error", err.Error())
+		os.Exit(1)
 	}
 }

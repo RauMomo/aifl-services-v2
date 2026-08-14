@@ -5,149 +5,147 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
+	"aifl-backend/db"
+	"aifl-backend/logger"
 	"aifl-backend/models"
 )
 
-type ProjectHandler struct {
-	mu       sync.RWMutex
-	projects map[string]models.Project
-}
+type ProjectHandler struct{}
 
 func NewProjectHandler() *ProjectHandler {
-	h := &ProjectHandler{
-		projects: make(map[string]models.Project),
-	}
-
-	// Seed real project case studies from AIFL platform
-	p1 := models.Project{
-		ID:          "proj-01",
-		Title:       "Enterprise Operational Control System",
-		Slug:        "enterprise-operational-control",
-		Description: "Sistem digital terintegrasi untuk mengelola data peserta, jadwal otomatis, dan operasional harian.",
-		Category:    "Operational Control",
-		ClientName:  "Lembaga Pelatihan Nasional",
-		ImageURL:    "/aifl-software-mockup.png",
-		Tags:        []string{"Automated Scheduling", "Real-time Analytics", "Workflow Management"},
-		ImpactMetrics: []string{
-			"Efisiensi Administrasi +75%",
-			"Otomatisasi Penjadwalan 100%",
-			"Transparansi Data Real-time",
-		},
-		IsFeatured: true,
-		CreatedAt:  time.Now().Add(-60 * 24 * time.Hour),
-	}
-
-	p2 := models.Project{
-		ID:          "proj-02",
-		Title:       "Drive Master Course Platform",
-		Slug:        "drive-master-course-platform",
-		Description: "Platform pembelajaran dan manajemen kursus mengemudi dengan tracking progress dan registrasi terpusat.",
-		Category:    "Course Platform",
-		ClientName:  "Drive Master Academy",
-		ImageURL:    "/drive-master-mockup.png",
-		Tags:        []string{"Student Portal", "Payment Integration", "Digital Certificates"},
-		ImpactMetrics: []string{
-			"Pertumbuhan Siswa Baru 3x Lipat",
-			"Proses Registrasi Kurang dari 2 Menit",
-			"Akses Dashboard 24/7",
-		},
-		IsFeatured: true,
-		CreatedAt:  time.Now().Add(-30 * 24 * time.Hour),
-	}
-
-	p3 := models.Project{
-		ID:          "proj-03",
-		Title:       "Internal Audit & Governance Portal",
-		Slug:        "internal-audit-governance-portal",
-		Description: "Sistem audit digital terpusat untuk monitoring aktivitas audit, tracking progress, dan dokumentasi risiko.",
-		Category:    "Audit System",
-		ClientName:  "Perusahaan Manufaktur Multinasional",
-		ImageURL:    "/aifl-software-mockup.png",
-		Tags:        []string{"Risk Management", "Audit Logging", "Compliance Tracking"},
-		ImpactMetrics: []string{
-			"Waktu Audit Berkurang 50%",
-			"Dokumentasi 100% Terverifikasi",
-		},
-		IsFeatured: false,
-		CreatedAt:  time.Now().Add(-15 * 24 * time.Hour),
-	}
-
-	h.projects[p1.ID] = p1
-	h.projects[p2.ID] = p2
-	h.projects[p3.ID] = p3
-
+	h := &ProjectHandler{}
+	h.seedDefaultProjects()
 	return h
+}
+
+func (h *ProjectHandler) seedDefaultProjects() {
+	var count int64
+	db.DB.Model(&models.Project{}).Count(&count)
+	if count > 0 {
+		return
+	}
+
+	samples := []models.Project{
+		{
+			ID:          "proj-1",
+			Title:       "DriveMaster Driving Education System",
+			Slug:        "drive-master-system",
+			Description: "Platform edukasi dan manajemen kursus mengemudi terpusat dengan penugasan instruktur, jadwal presisi, dan tracking modul.",
+			Category:    "Course & Training Platform",
+			ClientName:  "DriveMaster Indonesia",
+			ImageURL:    "/drive-master-mockup.png",
+			Tags:        []string{"Ember.js", "Golang", "Operational Control"},
+			ImpactMetrics: []string{
+				"Efisiensi Operasional +85%",
+				"Otomatisasi Penjadwalan 100%",
+			},
+			IsFeatured: true,
+			CreatedAt:  time.Now(),
+		},
+		{
+			ID:          "proj-2",
+			Title:       "Enterprise Risk-Based Audit Control",
+			Slug:        "risk-based-audit-control",
+			Description: "Sistem pengawasan audit berbasis risiko perusahaan untuk mengontrol kepatuhan, temuan audit, dan pelaporan eksekutif secara real-time.",
+			Category:    "Operational Control",
+			ClientName:  "AIFL Enterprise Client",
+			ImageURL:    "/aifl-software-mockup.png",
+			Tags:        []string{"Process Discovery", "Workflow Automation", "Audit System"},
+			ImpactMetrics: []string{
+				"Zero Data Loss Audit Trail",
+				"Kecepatan Laporan 5x Lebih Cepat",
+			},
+			IsFeatured: true,
+			CreatedAt:  time.Now(),
+		},
+	}
+
+	for _, p := range samples {
+		db.DB.Create(&p)
+	}
+	logger.Log.Info("✅ Sample projects seeded into database")
 }
 
 // GetProjects handles GET /api/v1/projects
 func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
-			Success: false,
-			Error:   "Method not allowed",
+	cacheKey := "cache:projects:list"
+	var projects []models.Project
+
+	// Check Redis Cache
+	if db.CacheGet(r.Context(), cacheKey, &projects) {
+		logger.Log.Debug("⚡ Serving projects list from Redis cache")
+		respondJSON(w, http.StatusOK, models.APIResponse{
+			Success: true,
+			Message: fmt.Sprintf("Berhasil mengambil %d proyek (Cached)", len(projects)),
+			Data:    projects,
 		})
 		return
 	}
 
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-
-	list := make([]models.Project, 0, len(h.projects))
-	for _, p := range h.projects {
-		list = append(list, p)
+	if err := db.DB.Order("is_featured desc, created_at desc").Find(&projects).Error; err != nil {
+		logger.Log.Error("Failed to fetch projects from database", "error", err.Error())
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal mengambil data proyek",
+		})
+		return
 	}
+
+	// Cache result in Redis for 10 minutes
+	_ = db.CacheSet(r.Context(), cacheKey, projects, 10*time.Minute)
 
 	respondJSON(w, http.StatusOK, models.APIResponse{
 		Success: true,
-		Data:    list,
+		Message: fmt.Sprintf("Berhasil mengambil %d proyek", len(projects)),
+		Data:    projects,
 	})
 }
 
 // CreateProject handles POST /api/v1/projects
 func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
-			Success: false,
-			Error:   "Method not allowed",
-		})
-		return
-	}
-
 	var req models.Project
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondJSON(w, http.StatusBadRequest, models.APIResponse{
 			Success: false,
-			Error:   "Invalid JSON payload",
+			Error:   "Format JSON tidak valid",
 		})
 		return
 	}
 
-	if strings.TrimSpace(req.Title) == "" || strings.TrimSpace(req.Description) == "" {
+	req.Title = strings.TrimSpace(req.Title)
+	if req.Title == "" {
 		respondJSON(w, http.StatusUnprocessableEntity, models.APIResponse{
 			Success: false,
-			Error:   "Title and description are required",
+			Error:   "Judul proyek wajib diisi",
 		})
 		return
 	}
 
-	h.mu.Lock()
-	defer h.mu.Unlock()
-
-	id := fmt.Sprintf("proj-%d", time.Now().UnixNano())
-	req.ID = id
+	req.ID = fmt.Sprintf("proj-%d", time.Now().UnixNano())
 	if req.Slug == "" {
 		req.Slug = strings.ToLower(strings.ReplaceAll(req.Title, " ", "-"))
 	}
 	req.CreatedAt = time.Now()
 
-	h.projects[id] = req
+	if err := db.DB.Create(&req).Error; err != nil {
+		logger.Log.Error("Failed to save project to database", "error", err.Error())
+		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
+			Success: false,
+			Error:   "Gagal menyimpan data proyek",
+		})
+		return
+	}
+
+	// Invalidate Redis cache
+	db.CacheDelete(r.Context(), "cache:projects:list")
+
+	logger.Log.Info("🚀 New project created", "id", req.ID, "title", req.Title)
 
 	respondJSON(w, http.StatusCreated, models.APIResponse{
 		Success: true,
-		Message: "Project created successfully",
+		Message: "Proyek berhasil ditambahkan",
 		Data:    req,
 	})
 }

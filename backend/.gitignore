@@ -1,0 +1,13 @@
+# SQLite DB files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Compiled binaries
+bin/
+server
+
+# Environment files
+.env
+.env.local

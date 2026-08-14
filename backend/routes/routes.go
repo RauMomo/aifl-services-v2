@@ -1,11 +1,13 @@
 package routes
 
 import (
-	"log"
+	"encoding/json"
 	"net/http"
 	"time"
 
+	"aifl-backend/db"
 	"aifl-backend/handlers"
+	"aifl-backend/logger"
 	"aifl-backend/models"
 )
 
@@ -13,6 +15,7 @@ import (
 func RegisterRoutes() http.Handler {
 	mux := http.NewServeMux()
 
+	authH := handlers.NewAuthHandler()
 	contactH := handlers.NewContactHandler()
 	projectH := handlers.NewProjectHandler()
 	testimonialH := handlers.NewTestimonialHandler()
@@ -21,26 +24,41 @@ func RegisterRoutes() http.Handler {
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"status":"UP","timestamp":"` + time.Now().Format(time.RFC3339) + `"}`))
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"status":       "UP",
+			"timestamp":    time.Now().Format(time.RFC3339),
+			"database":     "CONNECTED",
+			"redis_active": db.IsRedisActive(),
+		})
 	})
 
 	// API Info endpoint
 	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte(`{"name":"AIFL REST API Backend","version":"1.0.0","entities":["contact","projects","testimonials"]}`))
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"name":       "AIFL REST API Backend",
+			"version":    "2.0.0",
+			"features":   []string{"Admin Auth", "GORM SQLite Database", "Redis Cache & Rate Limiting", "Protobuf Support", "Structured Logging"},
+			"endpoints":  []string{"/api/v1/auth/login", "/api/v1/auth/me", "/api/v1/contact", "/api/v1/contact/list", "/api/v1/projects", "/api/v1/testimonials"},
+		})
 	})
 
-	// Entity Endpoints
-	mux.HandleFunc("/api/v1/contact", contactH.CreateContact)
-	mux.HandleFunc("/api/v1/contact/list", contactH.GetContacts)
+	// Auth Endpoints
+	mux.HandleFunc("/api/v1/auth/login", authH.Login)
+	mux.Handle("/api/v1/auth/me", handlers.JWTMiddleware(http.HandlerFunc(authH.GetMe)))
 
+	// Public Form Submission & Protected Contact List
+	mux.HandleFunc("/api/v1/contact", contactH.CreateContact)
+	mux.Handle("/api/v1/contact/list", handlers.JWTMiddleware(http.HandlerFunc(contactH.GetContacts)))
+
+	// Public Read / Protected Creation for Projects & Testimonials
 	mux.HandleFunc("/api/v1/projects", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			projectH.GetProjects(w, r)
 		case http.MethodPost:
-			projectH.CreateProject(w, r)
+			handlers.JWTMiddleware(http.HandlerFunc(projectH.CreateProject)).ServeHTTP(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -51,14 +69,14 @@ func RegisterRoutes() http.Handler {
 		case http.MethodGet:
 			testimonialH.GetTestimonials(w, r)
 		case http.MethodPost:
-			testimonialH.CreateTestimonial(w, r)
+			handlers.JWTMiddleware(http.HandlerFunc(testimonialH.CreateTestimonial)).ServeHTTP(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
 
-	// Wrap with Middleware (CORS & Logging)
-	return enableCORS(requestLogger(mux))
+	// Wrap with Middleware: CORS & Structured Slog Logger with Request ID Tracing
+	return enableCORS(logger.RequestLoggerMiddleware(mux))
 }
 
 // Middleware: CORS Configuration
@@ -66,7 +84,7 @@ func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Request-ID, Accept")
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
@@ -74,15 +92,6 @@ func enableCORS(next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
-	})
-}
-
-// Middleware: Request Logger
-func requestLogger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		next.ServeHTTP(w, r)
-		log.Printf("[%s] %s %s - %v", r.Method, r.URL.Path, r.RemoteAddr, time.Since(start))
 	})
 }
 

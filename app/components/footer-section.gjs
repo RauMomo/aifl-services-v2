@@ -53,8 +53,7 @@ export default class FooterSection extends Component {
 
       <div class="footer-bottom">
         <div>
-          © 2026 AIFL SERVICES. All Rights Reserved. Digital Solutions for
-          Better Operational Control.
+          © 2026 AIFL Services. All Rights Reserved
         </div>
         <div class="footer-copyright-links">
           <a href="#hero" class="footer-link">Kembali ke Atas ↑</a>

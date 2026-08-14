@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "aifl-backend/proto/pb";
+
+message AdminUserProto {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string role = 4;
+  string created_at = 5;
+}
+
+message AdminLoginRequestProto {
+  string username_or_email = 1;
+  string password = 2;
+}
+
+message AdminLoginResponseProto {
+  bool success = 1;
+  string message = 2;
+  string token = 3;
+  AdminUserProto user = 4;
+  string error = 5;
+}
