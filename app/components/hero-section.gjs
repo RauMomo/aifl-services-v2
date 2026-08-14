@@ -1,6 +1,9 @@
 import Component from '@glimmer/component';
+import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { modifier } from 'ember-modifier';
+import { on } from '@ember/modifier';
+import { fn } from '@ember/helper';
 import UiButton from './ui-button';
 import UiBadge from './ui-badge';
 
@@ -238,7 +241,7 @@ const setupMatrixCanvas = modifier((canvas) => {
   };
 });
 
-const setupTypingCode = modifier((container) => {
+const setupTypingCode = modifier((container, [onComplete]) => {
   if (!container) return;
 
   const CODE_LINES = [
@@ -324,12 +327,12 @@ const setupTypingCode = modifier((container) => {
     {
       type: 'success',
       tag: '[OK]',
-      msg: 'Target compiled in 0.38s | GPU acceleration enabled',
+      msg: 'Target compiled in 0.38s | Solution Ready',
     },
     {
       type: 'prompt',
-      tag: '>>>',
-      msg: 'aifl-daemon --execute-stream (Active 60 FPS)',
+      tag: '[DEPLOY]',
+      msg: 'Launching Live Solution Preview...',
     },
   ];
 
@@ -434,7 +437,13 @@ const setupTypingCode = modifier((container) => {
       });
       logsPanel.style.opacity = '1';
 
-      timeoutId = setTimeout(runTypingLoop, 3500);
+      if (onComplete) {
+        timeoutId = setTimeout(() => {
+          if (!isDestroyed) onComplete();
+        }, 1600);
+      } else {
+        timeoutId = setTimeout(runTypingLoop, 3500);
+      }
     };
 
     startNextLine();
@@ -453,6 +462,46 @@ export default class HeroSection extends Component {
   setupMatrixCanvas = setupMatrixCanvas;
   setupTypingCode = setupTypingCode;
 
+  @tracked activeTab = 'code';
+  @tracked isTransitioning = false;
+
+  previewTimer = null;
+
+  get isCodeTab() {
+    return this.activeTab === 'code';
+  }
+
+  get isPreviewTab() {
+    return this.activeTab === 'preview';
+  }
+
+  @action
+  switchTab(tabName) {
+    if (typeof window !== 'undefined') {
+      clearTimeout(this.previewTimer);
+    }
+    if (this.activeTab === tabName && !this.isTransitioning) return;
+
+    this.isTransitioning = true;
+    setTimeout(() => {
+      this.activeTab = tabName;
+      this.isTransitioning = false;
+
+      if (tabName === 'preview') {
+        this.previewTimer = setTimeout(() => {
+          this.switchTab('code');
+        }, 7500);
+      }
+    }, 350);
+  }
+
+  @action
+  handleCodeFinished() {
+    if (this.activeTab === 'code' && !this.isTransitioning) {
+      this.switchTab('preview');
+    }
+  }
+
   @action
   handleMouseMove(event) {
     const card = event.currentTarget;
@@ -470,6 +519,13 @@ export default class HeroSection extends Component {
     const card = event.currentTarget;
     card.style.setProperty('--mouse-x', '0deg');
     card.style.setProperty('--mouse-y', '0deg');
+  }
+
+  willDestroy() {
+    super.willDestroy(...arguments);
+    if (typeof window !== 'undefined') {
+      clearTimeout(this.previewTimer);
+    }
   }
 
   <template>
@@ -585,21 +641,59 @@ export default class HeroSection extends Component {
                       <span class="dot dot-max"></span>
                     </div>
                     <div class="terminal-tabs">
-                      <div class="terminal-tab active">
+                      <button
+                        type="button"
+                        class="terminal-tab {{if this.isCodeTab 'active'}}"
+                        {{on "click" (fn this.switchTab "code")}}
+                      >
                         <span class="tab-icon">⚡</span>
                         green_code_engine.rs
-                      </div>
+                      </button>
+                      <button
+                        type="button"
+                        class="terminal-tab {{if this.isPreviewTab 'active'}}"
+                        {{on "click" (fn this.switchTab "preview")}}
+                      >
+                        <span class="tab-icon">🌐</span>
+                        drive-master.aifl.app
+                      </button>
                     </div>
                     <div class="terminal-status">
-                      <span class="status-pulse"></span>
-                      <span class="status-text">LIVE STREAM</span>
+                      {{#if this.isCodeTab}}
+                        <span class="status-pulse"></span>
+                        <span class="status-text">BUILDING ENGINE</span>
+                      {{else}}
+                        <span class="status-pulse live-pulse"></span>
+                        <span class="status-text live-text">LIVE SOLUTION</span>
+                      {{/if}}
                     </div>
                   </div>
 
                   <div
-                    class="terminal-content-view matrix-view fade-in"
-                    {{this.setupTypingCode}}
+                    class="terminal-view-container
+                      {{if this.isTransitioning 'is-transitioning'}}"
                   >
+                    {{#if this.isCodeTab}}
+                      <div
+                        class="terminal-content-view matrix-view fade-in"
+                        {{this.setupTypingCode this.handleCodeFinished}}
+                      >
+                      </div>
+                    {{else}}
+                      <div class="solution-preview-view fade-in">
+                        <img
+                          src="/drive-master-mockup.png"
+                          alt="DriveMaster Custom Web Solution Mockup"
+                          class="solution-mockup-img"
+                        />
+                        <div class="solution-preview-overlay">
+                          <div class="solution-badge">
+                            <span class="badge-dot"></span>
+                            LIVE DEPLOYED APP — DriveMaster Education System
+                          </div>
+                        </div>
+                      </div>
+                    {{/if}}
                   </div>
 
                   <div class="screen-glow-overlay"></div>
@@ -633,3 +727,4 @@ export default class HeroSection extends Component {
     </section>
   </template>
 }
+
