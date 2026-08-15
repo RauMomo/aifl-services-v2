@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "aifl-backend/proto/pb";
+
+message TestimonialProto {
+  string id = 1;
+  string author_name = 2;
+  string position = 3;
+  string company = 4;
+  string quote = 5;
+  int32 rating = 6;
+  string avatar_url = 7;
+  string created_at = 8;
+}
+
+message CreateTestimonialRequestProto {
+  string author_name = 1;
+  string position = 2;
+  string company = 3;
+  string quote = 4;
+  int32 rating = 5;
+  string avatar_url = 6;
+}
+
+message TestimonialListResponseProto {
+  bool success = 1;
+  string message = 2;
+  repeated TestimonialProto testimonials = 3;
+  string error = 4;
+}
+
+message TestimonialResponseProto {
+  bool success = 1;
+  string message = 2;
+  TestimonialProto testimonial = 3;
+  string error = 4;
+}

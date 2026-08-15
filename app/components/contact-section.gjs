@@ -15,9 +15,18 @@ const BACK4APP_SERVER_URL =
   import.meta.env?.VITE_BACK4APP_SERVER_URL || 'https://parseapi.back4app.com';
 
 export default class ContactSection extends Component {
+  topics = [
+    'Demo Auditsphere',
+    'IT Consulting',
+    'Pertanyaan Umum',
+    'Partnership',
+    'Career/Hiring',
+  ];
+
   @tracked name = '';
   @tracked organization = '';
   @tracked email = '';
+  @tracked topic = 'Demo Auditsphere';
   @tracked message = '';
   @tracked isSubmitting = false;
   @tracked isSubmitted = false;
@@ -39,6 +48,11 @@ export default class ContactSection extends Component {
   }
 
   @action
+  handleTopicInput(event) {
+    this.topic = event.target.value;
+  }
+
+  @action
   handleMessageInput(event) {
     this.message = event.target.value;
   }
@@ -52,6 +66,7 @@ export default class ContactSection extends Component {
     this.submitError = '';
 
     try {
+      // eslint-disable-next-line warp-drive/no-external-request-patterns
       const response = await fetch(`${BACK4APP_SERVER_URL}/classes/Contact`, {
         method: 'POST',
         headers: {
@@ -63,6 +78,8 @@ export default class ContactSection extends Component {
           name: this.name,
           organization: this.organization,
           email: this.email,
+          topic: this.topic,
+          subject: this.topic,
           message: this.message,
         }),
       });
@@ -87,6 +104,7 @@ export default class ContactSection extends Component {
     this.name = '';
     this.organization = '';
     this.email = '';
+    this.topic = 'Demo Auditsphere';
     this.message = '';
     this.isSubmitting = false;
     this.isSubmitted = false;
@@ -230,6 +248,24 @@ export default class ContactSection extends Component {
                   {{on "input" this.handleEmailInput}}
                   class="form-input"
                 />
+              </div>
+
+              <div>
+                <label for="contact-topic" class="form-label">
+                  Topik Perihal *
+                </label>
+                <select
+                  id="contact-topic"
+                  required
+                  disabled={{this.isSubmitting}}
+                  value={{this.topic}}
+                  {{on "change" this.handleTopicInput}}
+                  class="form-select"
+                >
+                  {{#each this.topics as |item|}}
+                    <option value={{item}}>{{item}}</option>
+                  {{/each}}
+                </select>
               </div>
 
               <div>

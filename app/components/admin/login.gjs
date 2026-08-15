@@ -3,8 +3,8 @@ import { tracked } from '@glimmer/tracking';
 import { action } from '@ember/object';
 import { service } from '@ember/service';
 import { on } from '@ember/modifier';
-import UiBadge from './ui-badge';
-import UiButton from './ui-button';
+import UiBadge from '../ui-badge';
+import UiButton from '../ui-button';
 
 export default class AdminLoginComponent extends Component {
   @service auth;
@@ -52,21 +52,12 @@ export default class AdminLoginComponent extends Component {
             class="admin-hero-image"
           />
           <div class="admin-left-overlay">
-            <div class="admin-status-badge">
-              <span class="status-dot green"></span>
-              SYSTEM SECURITY LEVEL 4
-            </div>
-
             <div class="admin-left-text-group">
               <h2 class="admin-left-title">AIFL Core Control Portal</h2>
               <p class="admin-left-subtitle">
                 Interface khusus administrator untuk mengelola workflow, sistem audit, dan pengawasan operasional digital.
               </p>
 
-              <div class="admin-metrics-pill">
-                <span class="lock-icon">🔒</span>
-                <span>ENCRYPTION: AES-256-GCM | PROTOBUF ACTIVE</span>
-              </div>
             </div>
           </div>
         </div>
@@ -75,9 +66,9 @@ export default class AdminLoginComponent extends Component {
         <div class="admin-portal-right">
           <div class="admin-form-header">
             <div class="admin-brand-logo">
-              <UiBadge @variant="fill">AKSES TERPROTEKSI</UiBadge>
+              <UiBadge @variant="fill">AIFL Services (Khusus Admin)</UiBadge>
             </div>
-            <h1 class="admin-form-title">Masuk Portal Admin</h1>
+            <h1 class="admin-form-title">Masuk Dashboard Admin</h1>
             <p class="admin-form-subtitle">
               Silakan masukkan kredensial administrator Anda untuk melanjutkan.
             </p>
@@ -94,7 +85,12 @@ export default class AdminLoginComponent extends Component {
             <div class="form-group">
               <label for="admin-user-input" class="form-label">Username atau Email</label>
               <div class="input-wrapper">
-                <span class="input-icon">👤</span>
+                <span class="input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </span>
                 <input
                   id="admin-user-input"
                   type="text"
@@ -110,7 +106,12 @@ export default class AdminLoginComponent extends Component {
             <div class="form-group">
               <label for="admin-pass-input" class="form-label">Kata Sandi</label>
               <div class="input-wrapper">
-                <span class="input-icon">🔑</span>
+                <span class="input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </span>
                 <input
                   id="admin-pass-input"
                   type={{if this.showPassword "text" "password"}}
@@ -126,7 +127,19 @@ export default class AdminLoginComponent extends Component {
                   {{on "click" this.togglePasswordVisibility}}
                   aria-label="Toggle visibility"
                 >
-                  {{if this.showPassword "👁️" "🙈"}}
+                  {{#if this.showPassword}}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  {{else}}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                      <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                      <line x1="2" x2="22" y1="2" y2="22"></line>
+                    </svg>
+                  {{/if}}
                 </button>
               </div>
             </div>

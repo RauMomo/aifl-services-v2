@@ -1,0 +1,19 @@
+meta {
+  name: Get List Protobuf (Protected)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/contact/list
+  body: none
+  auth: bearer
+}
+
+headers {
+  Accept: application/x-protobuf
+}
+
+auth:bearer {
+  token: {{jwtToken}}
+}

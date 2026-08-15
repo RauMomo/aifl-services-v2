@@ -1,0 +1,26 @@
+meta {
+  name: Submit Request (Protobuf)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/contact
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/x-protobuf
+}
+
+body:json {
+  {
+    "name": "Ahmad Rizky",
+    "email": "ahmad@example.com",
+    "company": "PT Solusi Teknologi Bersama",
+    "subject": "Konsultasi System Architecture",
+    "message": "Permohonan konsultasi untuk perancangan ulang arsitektur sistem enterprise."
+  }
+}

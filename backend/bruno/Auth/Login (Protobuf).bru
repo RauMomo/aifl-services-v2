@@ -1,0 +1,23 @@
+meta {
+  name: Login (Protobuf)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/x-protobuf
+}
+
+body:json {
+  {
+    "username_or_email": "admin",
+    "password": "admin123"
+  }
+}
