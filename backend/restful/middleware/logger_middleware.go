@@ -1,51 +1,24 @@
-package logger
+package middleware
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
+
+	"aifl-backend/common/logger"
 )
 
-type contextKey string
-
-const RequestIDKey contextKey = "request_id"
-
-var Log *slog.Logger
-
-func init() {
-	opts := &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}
-	handler := slog.NewJSONHandler(os.Stdout, opts)
-	Log = slog.New(handler)
-	slog.SetDefault(Log)
-}
-
-// GenerateRequestID returns a unique hexadecimal string
-func GenerateRequestID() string {
-	b := make([]byte, 8)
-	_, err := rand.Read(b)
-	if err != nil {
-		return hex.EncodeToString(b)[:12]
-	}
-	return hex.EncodeToString(b)
-}
-
-// RequestLoggerMiddleware attaches Request ID and logs execution telemetry
-func RequestLoggerMiddleware(next http.Handler) http.Handler {
+func LoggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		reqID := r.Header.Get("X-Request-ID")
 		if reqID == "" {
-			reqID = GenerateRequestID()
+			reqID = logger.GenerateRequestID()
 		}
 
-		ctx := context.WithValue(r.Context(), RequestIDKey, reqID)
+		ctx := context.WithValue(r.Context(), logger.RequestIDKey, reqID)
 		r = r.WithContext(ctx)
 
 		w.Header().Set("X-Request-ID", reqID)
@@ -56,7 +29,7 @@ func RequestLoggerMiddleware(next http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		Log.InfoContext(ctx, "HTTP Request",
+		logger.Log.InfoContext(ctx, "HTTP Request",
 			slog.String("request_id", reqID),
 			slog.String("method", r.Method),
 			slog.String("path", r.URL.Path),

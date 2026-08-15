@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aifl-backend
+    ports:
+      - "8200:8200"
+    environment:
+      - PORT=8200
+      - GO_ENV=development
+      - DATABASE_PATH=/app/data/aifl.db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - backend-data:/app/data
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: aifl-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  backend-data:

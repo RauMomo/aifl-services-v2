@@ -1,4 +1,4 @@
-package storage
+package client
 
 import (
 	"context"
@@ -7,14 +7,19 @@ import (
 	"io"
 	"os"
 
-	"aifl-backend/config"
-	"aifl-backend/logger"
+	"aifl-backend/common/config"
+	"aifl-backend/common/logger"
 
 	"github.com/imagekit-developer/imagekit-go/v2"
 	"github.com/imagekit-developer/imagekit-go/v2/option"
 )
 
-type ImageKitService struct {
+type ImageKitClient interface {
+	IsConfigured() bool
+	UploadFile(ctx context.Context, fileReader io.Reader, fileName string, folder string) (*UploadResult, error)
+}
+
+type imageKitClient struct {
 	ik           *imagekit.Client
 	isConfigured bool
 	publicKey    string
@@ -29,26 +34,26 @@ type UploadResult struct {
 	Name         string `json:"name"`
 }
 
-func NewImageKitService() *ImageKitService {
+func NewImageKitClient(cfg *config.Config) ImageKitClient {
 	publicKey := os.Getenv("IMAGEKIT_PUBLIC_KEY")
 	privateKey := os.Getenv("IMAGEKIT_PRIVATE_KEY")
 	urlEndpoint := os.Getenv("IMAGEKIT_URL_ENDPOINT")
 
-	if config.AppConfig != nil {
+	if cfg != nil {
 		if publicKey == "" {
-			publicKey = config.AppConfig.ImageKit.PublicKey
+			publicKey = cfg.ImageKit.PublicKey
 		}
 		if privateKey == "" {
-			privateKey = config.AppConfig.ImageKit.PrivateKey
+			privateKey = cfg.ImageKit.PrivateKey
 		}
 		if urlEndpoint == "" {
-			urlEndpoint = config.AppConfig.ImageKit.URLEndpoint
+			urlEndpoint = cfg.ImageKit.URLEndpoint
 		}
 	}
 
 	if publicKey == "" || privateKey == "" || urlEndpoint == "" {
 		logger.Log.Warn("⚠️ ImageKit credentials incomplete. Set IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT in config.yaml or environment variables to enable cloud uploads.", "url_endpoint", urlEndpoint)
-		return &ImageKitService{
+		return &imageKitClient{
 			isConfigured: false,
 			urlEndpoint:  urlEndpoint,
 		}
@@ -65,7 +70,7 @@ func NewImageKitService() *ImageKitService {
 
 	logger.Log.Info("🟢 ImageKit Client initialized successfully", "url_endpoint", urlEndpoint)
 
-	return &ImageKitService{
+	return &imageKitClient{
 		ik:           &ikClient,
 		isConfigured: true,
 		publicKey:    publicKey,
@@ -74,11 +79,11 @@ func NewImageKitService() *ImageKitService {
 	}
 }
 
-func (s *ImageKitService) IsConfigured() bool {
+func (s *imageKitClient) IsConfigured() bool {
 	return s.isConfigured
 }
 
-func (s *ImageKitService) UploadFile(ctx context.Context, fileReader io.Reader, fileName string, folder string) (*UploadResult, error) {
+func (s *imageKitClient) UploadFile(ctx context.Context, fileReader io.Reader, fileName string, folder string) (*UploadResult, error) {
 	if !s.isConfigured {
 		return nil, errors.New("ImageKit Client is not fully configured. Please set IMAGEKIT_PUBLIC_KEY and IMAGEKIT_PRIVATE_KEY in config.yaml or environment variables")
 	}

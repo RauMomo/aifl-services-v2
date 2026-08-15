@@ -1,4 +1,4 @@
-package handlers
+package handler
 
 import (
 	"encoding/json"
@@ -8,21 +8,21 @@ import (
 	"strings"
 	"time"
 
-	"aifl-backend/db"
-	"aifl-backend/logger"
-	"aifl-backend/models"
+	"aifl-backend/common/models"
 	"aifl-backend/proto/pb"
+	"aifl-backend/restful/service"
 
 	"google.golang.org/protobuf/proto"
 )
 
-type ContactHandler struct{}
-
-func NewContactHandler() *ContactHandler {
-	return &ContactHandler{}
+type ContactHandler struct {
+	contactService service.ContactService
 }
 
-// CreateContact handles POST /api/v1/contact
+func NewContactHandler(contactService service.ContactService) *ContactHandler {
+	return &ContactHandler{contactService: contactService}
+}
+
 func (h *ContactHandler) CreateContact(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
@@ -34,7 +34,6 @@ func (h *ContactHandler) CreateContact(w http.ResponseWriter, r *http.Request) {
 
 	var req models.ContactUs
 
-	// Support both JSON & Protobuf payloads
 	if strings.Contains(r.Header.Get("Content-Type"), "application/x-protobuf") {
 		body, err := io.ReadAll(r.Body)
 		if err == nil {
@@ -51,41 +50,22 @@ func (h *ContactHandler) CreateContact(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewDecoder(r.Body).Decode(&req)
 	}
 
-	req.Name = strings.TrimSpace(req.Name)
-	req.Email = strings.TrimSpace(req.Email)
-	req.Message = strings.TrimSpace(req.Message)
-
-	if req.Name == "" || req.Email == "" || req.Message == "" {
+	created, err := h.contactService.CreateContact(r.Context(), &req)
+	if err != nil {
 		respondJSON(w, http.StatusUnprocessableEntity, models.APIResponse{
 			Success: false,
-			Error:   "Nama, email, dan pesan wajib diisi",
+			Error:   err.Error(),
 		})
 		return
 	}
-
-	req.ID = fmt.Sprintf("ct-%d", time.Now().UnixNano())
-	req.Status = "unread"
-	req.CreatedAt = time.Now()
-
-	if err := db.DB.Create(&req).Error; err != nil {
-		logger.Log.Error("Failed to insert contact in database", "error", err.Error())
-		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
-			Success: false,
-			Error:   "Gagal menyimpan data pesan",
-		})
-		return
-	}
-
-	logger.Log.Info("📩 New contact submission created", "id", req.ID, "name", req.Name, "email", req.Email)
 
 	respondJSON(w, http.StatusCreated, models.APIResponse{
 		Success: true,
 		Message: "Pesan Anda telah berhasil dikirim. Tim AIFL akan menghubungi Anda segera.",
-		Data:    req,
+		Data:    created,
 	})
 }
 
-// GetContacts handles GET /api/v1/contact/list
 func (h *ContactHandler) GetContacts(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondJSON(w, http.StatusMethodNotAllowed, models.APIResponse{
@@ -95,12 +75,11 @@ func (h *ContactHandler) GetContacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var contacts []models.ContactUs
-	if err := db.DB.Order("created_at desc").Find(&contacts).Error; err != nil {
-		logger.Log.Error("Failed to query contacts from database", "error", err.Error())
+	contacts, err := h.contactService.GetAllContacts(r.Context())
+	if err != nil {
 		respondJSON(w, http.StatusInternalServerError, models.APIResponse{
 			Success: false,
-			Error:   "Gagal mengambil data kontak",
+			Error:   err.Error(),
 		})
 		return
 	}
